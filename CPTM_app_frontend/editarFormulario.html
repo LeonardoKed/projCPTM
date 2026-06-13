@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Formulário</title>
+
+    <style>
+        /* same CSS as Forms copy.html (kept identical) */
+        :root {
+            --primary: #e30613;
+            --primary-dark: #b5000a;
+            --secondary: #003366;
+            --bg: #f4f6f8;
+            --surface: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #d7dde5;
+            --success-bg: #e8f8ee;
+            --success-text: #0f7a38;
+            --error-bg: #fdecec;
+            --error-text: #b42318;
+            --shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+            --radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: var(--text);
+            background: radial-gradient(circle at top right, rgba(227, 6, 19, 0.08), transparent 24%), linear-gradient(180deg, #ffffff 0%, #f4f6f8 100%);
+            display: flex;
+            flex-direction: column
+        }
+
+        header {
+            width: 100%;
+            background: linear-gradient(90deg, #e30613 60%, #003366 100%);
+            color: #fff;
+            padding: 24px 32px 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .08)
+        }
+
+        .header-content {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: .4px
+        }
+
+        .header-title p {
+            margin: 0;
+            font-size: .95rem;
+            opacity: .92
+        }
+
+        .header-action {
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, .14);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, .35);
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: .95rem;
+            transition: background .2s ease, transform .2s ease
+        }
+
+        .header-action:hover {
+            background: rgba(255, 255, 255, .22);
+            transform: translateY(-1px)
+        }
+
+        main {
+            flex: 1;
+            width: min(1360px, 100%);
+            margin: 0 auto;
+            padding: 28px 16px 56px;
+            display: block
+        }
+
+        .form-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(215, 221, 229, .7);
+            padding: 28px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .form-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary))
+        }
+
+        .progress-bar {
+            display: grid;
+            grid-template-columns: repeat(9, minmax(0, 1fr));
+            gap: 10px;
+            margin: 20px 0 26px
+        }
+
+        .step {
+            width: 100%;
+            min-width: 0;
+            height: 42px;
+            border: 1px solid #d6dbe3;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .95rem;
+            font-weight: 700;
+            color: #98a2b3;
+            background: #f8fafc;
+            transition: all .25s ease
+        }
+
+        .step.active {
+            border-color: rgba(227, 6, 19, .26);
+            background: linear-gradient(135deg, rgba(227, 6, 19, .10), rgba(0, 51, 102, .06));
+            color: var(--primary);
+            box-shadow: inset 0 0 0 1px rgba(227, 6, 19, .08)
+        }
+
+        form {
+            width: 100%
+        }
+
+        .form-step {
+            width: 100%;
+            padding: 24px;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfcfd 100%);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, .05);
+            display: none
+        }
+
+        .form-step.active {
+            display: block
+        }
+
+        .form-step h2 {
+            margin: 0 0 22px;
+            text-align: left;
+            color: var(--secondary);
+            font-size: 1.45rem
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            position: relative
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #344054;
+            line-height: 1.45
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px 15px;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fff;
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s ease, box-shadow .2s ease
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: rgba(227, 6, 19, .7);
+            box-shadow: 0 0 0 4px rgba(227, 6, 19, .12)
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 28px;
+            flex-wrap: wrap
+        }
+
+        .buttons button,
+        button[type="submit"] {
+            min-width: 138px;
+            padding: 13px 22px;
+            font-size: .98rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease
+        }
+
+        .buttons .next,
+        button[type="submit"] {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            box-shadow: 0 12px 22px rgba(227, 6, 19, .18)
+        }
+
+        .buttons .prev {
+            background: #eef2f6;
+            color: var(--secondary);
+            border: 1px solid #d7dde5;
+            box-shadow: none
+        }
+
+        .edit-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 6px 10px;
+            background: #eef2f6;
+            border: 1px solid #d7dde5;
+            border-radius: 10px;
+            font-weight: 700;
+            color: var(--secondary);
+            cursor: pointer
+        }
+
+        /* Inputs desabilitados ficam com fundo cinza claro e texto mais claro */
+        .form-group input[disabled],
+        .form-group select[disabled],
+        .form-group textarea[disabled] {
+            background: #f3f4f6;
+            color: #6b7280;
+            border-color: #e6e9ee;
+        }
+
+        /* Reduz a largura visível do controle para dar espaço ao botão de editar (não sobrepor) */
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 15px;
+            height: 48px;
+            min-height: 40px;
+            box-sizing: border-box;
+        }
+
+        /* container flex para alinhar input + botão */
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .input-row>input,
+        .input-row>select,
+        .input-row>textarea {
+            flex: 1;
+        }
+
+        .input-row .edit-btn {
+            position: relative;
+            top: 0;
+            transform: none;
+            height: 48px;
+            line-height: normal;
+            padding: 0 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Esconde posicionamento absoluto padrão quando dentro de input-row */
+        .form-group>.edit-btn {
+            display: none;
+        }
+
+        .map-section {
+            margin-top: 6px;
+        }
+
+        .map-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .map-btn {
+            min-width: 190px;
+            padding: 11px 16px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(227, 6, 19, 0.16);
+            transition: transform 0.2s ease;
+        }
+
+        .map-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .mapa-localizacao {
+            width: 100%;
+            height: 320px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .map-hint {
+            margin: 10px 0 0;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .image-preview {
+            border: 2px dashed rgba(0, 0, 0, 0.08);
+            background: #fff;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+        }
+
+        .image-preview img {
+            width: 100%;
+            max-width: 100%;
+            max-height: 180px;
+            object-fit: contain;
+            display: block;
+        }
+
+        @media (max-width: 720px) {
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding-right: 15px;
+                height: auto;
+            }
+
+            .input-row {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .input-row .edit-btn {
+                position: static;
+                height: auto;
+                padding: 6px 10px;
+                align-self: flex-end
+            }
+        }
+
+        .primary-action {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border: none;
+            padding: 13px 22px;
+            border-radius: 14px;
+            font-weight: 700
+        }
+
+        .secondary-action {
+            background: #eef2f6;
+            color: var(--secondary);
+            border: 1px solid #d7dde5;
+            padding: 13px 22px;
+            border-radius: 14px
+        }
+
+        #custom-alert {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+            animation: fadeIn .25s ease
+        }
+
+        #custom-alert.hidden {
+            display: none
+        }
+
+        .alert-content {
+            background: #fff;
+            padding: 26px 24px;
+            border-radius: 18px;
+            box-shadow: 0 22px 60px rgba(15, 23, 42, .20);
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+            border-top: 5px solid var(--primary);
+            animation: modalUp .28s ease
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes modalUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(.98)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+</head>
+
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>Editar Formulário</h1>
+                <p>Edição de formulário existente.</p>
+            </div>
+
+            <button class="header-action" onclick="Voltar()">Voltar</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="intro-card">
+
+            <section class="form-card">
+                <div class="form-card-header">
+                    <h3>Etapas do formulário</h3>
+                    <p>Os campos são bloqueados por padrão; clique em "Editar" para liberar.</p>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="step active">1</div>
+                    <div class="step">2</div>
+                    <div class="step">3</div>
+                    <div class="step">4</div>
+                    <div class="step">5</div>
+                    <div class="step">6</div>
+                    <div class="step">7</div>
+                    <div class="step">8</div>
+                    <div class="step">9</div>
+                </div>
+
+                <form id="form">
+
+                    <!-- Use same form steps and fields as Forms copy.html -->
+                    <!-- For brevity reuse the same HTML structure; original field names preserved -->
+
+                    <!-- 1ª Etapa (excerpt) -->
+                    <div class="form-step active">
+                        <h2>1ª Etapa</h2>
+
+                        <!-- Pergunta 1 -->
+                        <div class="form-group">
+                            <label for="nomeContratada">Nome (Pessoa Jurídica) da Contratada</label>
+                            <input type="text" name="nomeContratada" id="nomeContratada"
+                                placeholder="Exemplo: Companhia Paulista de Trens Metropolitanos - CPTM" required
+                                disabled>
+                        </div>
+
+                        <!-- Pergunta 2 -->
+                        <div class="form-group">
+                            <label for="numeroContrato">Nº do Contrato (da Contratada)</label>
+                            <input type="text" name="numeroContrato" id="numeroContrato"
+                                placeholder="Exemplo: 001001001001 ou XX1234-12" required disabled>
+                        </div>
+
+                        <!-- Pergunta 3 -->
+                        <div class="form-group">
+                            <label for="localEscopo">Local do Escopo Contratual (Pseudônimo)</label>
+                            <input type="text" name="localEscopo" id="localEscopo"
+                                placeholder="Exemplo: Túnel da Estação da Luz" required disabled>
+                        </div>
+
+                        <!-- Pergunta 4 -->
+                        <div class="form-group">
+                            <label for="representante">Representante (PF) da Contratada e/ou Área Gestora da
+                                CPTM</label>
+                            <input type="text" name="representante" id="representante"
+                                placeholder="Exemplo: Representante da Contratada / Representante da CPTM" required
+                                disabled>
+                        </div>
+
+                        <!-- Pergunta 5 -->
+                        <div class="form-group">
+                            <label for="siglaArea">Sigla da Área de Meio Ambiente</label>
+
+                            <select name="siglaArea" id="siglaArea" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">GEA</option>
+                                <option value="2">GEA.DEAE</option>
+                                <option value="3">GEA.DEAO</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+                            </select>
+                        </div>
+
+                        <!-- Pergunta 6 -->
+                        <div class="form-group">
+
+                            <label for="areaGestora">Nome da Área Gestora CPTM</label>
+
+                            <select name="areaGestora" id="areaGestora" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+
+                                <option value="1">(DE.GEA.0000) GERENCIA DE MEIO AMBIENTE [ID.10-14-4-0-0000]</option>
+                                <option value="2">(DE.GEA.DEAE.0000) DEPTO. DE MEIO AMBIENTE - EMPREENDIMENTOS
+                                    [ID.10-14-4-1-0000]</option>
+                                <option value="3">(DE.GEA.DEAO.0000) DEPTO. DE MEIO AMBIENTE - OPERACAO
+                                    [ID.10-14-4-2-0000]</option>
+
+                                <option value="5">(DE.GED.0000) GERENCIA DE EMPREENDIMENTOS - EXPANSAO
+                                    [ID.10-14-7-0-0000]</option>
+                                <option value="6">(DE.GED.DEDC.0000) DEPTO. DE OBRAS CIVIS - EXPANSAO
+                                    [ID.10-14-7-1-0000]</option>
+                                <option value="7">(DE.GED.DEDM.0000) DEPTO. DE MONTAGEM DE VIA PERMANENTE E RA
+                                    [ID.10-14-7-2-0000]</option>
+                                <option value="8">(DE.GED.DEDS.0000) DEPTO. DE IMPLANTACAO DE SISTEMAS - EXPANSAO
+                                    [ID.10-14-7-3-0000]</option>
+
+                                <option value="9">(DE.GEF.0000) GERENCIA DE EMPREENDIMENTOS [ID.10-14-6-0-0000]</option>
+                                <option value="10">(DE.GEF.DEFC.0000) DEPTO. DE OBRAS CIVIS [ID.10-14-6-2-0000]</option>
+                                <option value="11">(DE.GEF.DEFS.0000) DEPTO. DE OBRAS DE SISTEMAS [ID.10-14-6-1-0000]
+                                </option>
+
+                                <option value="12">(DE.GEO.0000) GERENCIA DE EMPREENDIMENTOS - MODERNIZACAO
+                                    [ID.10-14-2-0-0000]</option>
+
+                                <option value="14">(DE.GEP.0000) GERENCIA DE PROJETOS [ID.10-14-1-0-0000]</option>
+                                <option value="15">(DE.GEP.DEPE.0000) DEPTO. DE PROJETOS DE EDIFICACOES
+                                    [ID.10-14-1-2-0000]</option>
+                                <option value="16">(DE.GEP.DEPG.0000) DEPTO. DE CONSISTENCIA E INOVACAO DE PROJETOS
+                                    [ID.10-14-1-4-0000]</option>
+                                <option value="17">(DE.GEP.DEPI.0000) DEPTO. DE PROJETOS DE INFRAESTRUTURA
+                                    [ID.10-14-1-1-0000]</option>
+                                <option value="18">(DE.GEP.DEPS.0000) DEPTO. DE PROJETOS DE INSTALACOES E SISTEMAS
+                                    [ID.10-14-1-3-0000]</option>
+
+                                <option value="19">(DE.GET.0000) GERENCIA DE EMPREENDIMENTOS - SISTEMAS
+                                    [ID.10-14-5-0-0000]</option>
+                                <option value="20">(DE.GET.DETA.0000) DEPTO. DE SINALIZACAO E TELEFONIA
+                                    [ID.10-14-5-4-0000]</option>
+                                <option value="21">(DE.GET.DETE.0000) DEPTO. DE SISTEMAS DE ENERGIA [ID.10-14-5-5-0000]
+                                </option>
+                                <option value="22">(DE.GET.DETO.0000) DEPTO. DE PROJETOS DE IMPLANTACAO DE SISTEMAS
+                                    [ID.10-14-5-6-0000]</option>
+
+                                <option value="25">(DF.GFA.0000) GERENCIA ADMINISTRATIVA [ID.10-12-4-0-0000]</option>
+                                <option value="29">(DF.GFA.DFAL.0000) DEPTO. DE LOGISTICA ADMINISTRATIVA
+                                    [ID.10-12-4-1-0000]</option>
+                                <option value="34">(DF.GFA.DFAS.0000) DEPTO. DE SERVICOS ADMINISTRATIVOS
+                                    [ID.10-12-4-2-0000]</option>
+
+                                <option value="326">(DF.GFH.0000) GERENCIA DE DESENV. ORGAN. E RECURSOS HUMANOS
+                                    [ID.10-12-8-0-0000]</option>
+                                <option value="327">(DF.GFH.DFHS.0000) DEPTO. DE SAUDE E SEG. DO TRABALHO
+                                    [ID.10-12-8-5-0000]</option>
+
+                                <option value="328">(DF.GFI.0000) GERENCIA DE TECNOLOGIA DA INFORMACAO
+                                    [ID.10-12-5-0-0000]</option>
+                                <option value="329">(DF.GFI.DFIM.0000) DEPTO. DE SUP. E MANUTENCAO DE TI
+                                    [ID.10-12-5-3-0000]</option>
+
+                                <option value="330">(DO.GOA.0000) GERENCIA DE ATENDIMENTO [ID.10-16-9-0-0000]</option>
+                                <option value="331">(DO.GOA.DOAE.0000) DEPTO DE ATENDIMENTO EM ESTACAO
+                                    [ID.10-16-9-1-0000]</option>
+                                <option value="332">(DO.GOA.DOAP.0000) DEPTO DE ATENDIMENTO E SEGURANCA PATRIMONIAL
+                                    [ID.10-16-9-3-0000]</option>
+                                <option value="333">(DO.GOA.DOAS.0000) DEPTO DE ATENDIMENTO E SEGURANCA
+                                    [ID.10-16-9-2-0000]</option>
+
+                                <option value="49">(DO.GOC.0000) GERENCIA CIRCULACAO E CONTROLE OPERACIONAL
+                                    [ID.10-16-2-0-0000]</option>
+                                <option value="334">(DO.GOC.DOCC.0000) DEPTO. DE CIRCULAÇÃO [ID.10-16-2-8-0000]</option>
+                                <option value="66">(DO.GOC.DOCP.0000) DEPTO. DE CONTROLE OPERACIONAL [ID.10-16-2-1-0000]
+                                </option>
+                                <option value="69">(DO.GOC.DOCT.0000) DEPTO. DE ESTRATEGIA OPERACIONAL
+                                    [ID.10-16-2-5-0000]</option>
+
+                                <option value="131">(DO.GOF.0000) GERENCIA DE MANUT. DE EQUIPAMENTOS FIXOS
+                                    [ID.10-15-5-0-0000]</option>
+                                <option value="132">(DO.GOF.DOFA.0000) DEPTO. DE MANUT. DE SISTEMAS AUXILIARES
+                                    [ID.10-15-5-1-0000]</option>
+                                <option value="142">(DO.GOF.DOFE.0000) DEPTO. DE MANUT. DE SISTEMAS DE ENERGIA
+                                    [ID.10-15-5-2-0000]</option>
+                                <option value="156">(DO.GOF.DOFS.0000) DEPTO. DE MANUT. DE SISTEMAS ELETR. E RESTAB. DE
+                                    SERVICOS [ID.10-15-5-3-0000]</option>
+
+                                <option value="187">(DO.GOG.0000) GERENCIA ENG. DE OPERACAO [ID.10-16-7-0-0000]</option>
+                                <option value="188">(DO.GOG.DOGC.0000) DEPTO. ENG. DE ESTACOES E COMUNICACAO
+                                    [ID.10-16-7-2-0000]</option>
+                                <option value="193">(DO.GOG.DOGI.0000) DEPTO. ENG. DE SISTEMAS E EQUIPAMENTOS
+                                    [ID.10-16-7-1-0000]</option>
+
+                                <option value="197">(DO.GOL.0000) GERENCIA DE LOGISTICA [ID.10-15-7-0-0000]</option>
+                                <option value="198">(DO.GOL.DOLA.0000) DEPTO. DE ALMOXARIFADOS [ID.10-15-7-1-0000]
+                                </option>
+                                <option value="201">(DO.GOL.DOLM.0000) DEPTO. DE GESTAO E CADASTRO DE MATERIAIS
+                                    [ID.10-15-7-2-0000]</option>
+
+                                <option value="38">(DO.GOM.0000) GERENCIA GERAL DE MANUTENCAO [ID.10-15-1-0-0000]
+                                </option>
+                                <option value="39">(DO.GOO.0000) GERENCIA GERAL DE OPERACAO [ID.10-16-1-0-0000]</option>
+
+                                <option value="210">(DO.GOR.0000) GERENCIA MANUT. MAT RODANTE E OFICINAS
+                                    [ID.10-15-3-0-0000]</option>
+                                <option value="213">(DO.GOR.DORA.0000) DEPTO. MANUT. MAT RODANTE - LAPA
+                                    [ID.10-15-3-4-0000]</option>
+                                <option value="219">(DO.GOR.DORE.0000) DEPTO. MANUT. MAT RODANTE - ENG. S PAULO
+                                    [ID.10-15-3-6-0000]</option>
+                                <option value="226">(DO.GOR.DORO.0000) DEPTO. DE OFICINAS DE MANUT. DE EQUIPAMENTOS
+                                    [ID.10-15-3-7-0000]</option>
+                                <option value="241">(DO.GOR.DORV.0000) DEPTO. MANUT. DE VEICULOS FERROVIARIOS E
+                                    AUXILIARES [ID.10-15-3-8-0000]</option>
+
+                                <option value="274">(DO.GOT.0000) GERENCIA ENG. DE MANUTENCAO [ID.10-15-4-0-0000]
+                                </option>
+                                <option value="278">(DO.GOT.DOTI.0000) DEPTO. ENG. DE MANUT. DE INSTALACOES FIXAS
+                                    [ID.10-15-4-3-0000]</option>
+                                <option value="281">(DO.GOT.DOTM.0000) DEPTO. ENG. DE MANUT. DE MAT RODANTE
+                                    [ID.10-15-4-5-0000]</option>
+                                <option value="286">(DO.GOT.DOTV.0000) DEPTO. ENG. DE MANUT. DE VIA PERMANENTE E
+                                    ESTRUTURA CIVIL [ID.10-15-4-1-0000]</option>
+
+                                <option value="289">(DO.GOV.0000) GERENCIA DE MANUT. DE VIA PERMANENTE E ESTRUTURA CIVIL
+                                    [ID.10-15-6-0-0000]</option>
+                                <option value="291">(DO.GOV.DOVC.0000) DEPTO. DE MANUT. DE ESTRUTURA CIVIL
+                                    [ID.10-15-6-6-0000]</option>
+                                <option value="297">(DO.GOV.DOVF.0000) DEPTO. PLAN. E CONTR. DE MANUT. DE VIA PERMANENTE
+                                    [ID.10-15-6-4-0000]</option>
+                                <option value="309">(DO.GOV.DOVL.0000) DEPTO. DE MANUT. DE VIA PERMANENTE
+                                    [ID.10-15-6-5-0000]</option>
+
+                                <option value="335">(DP.GPM.DPMT.0000) DEPTO DE GESTÃO DO TERRITÓRIO [ID.10-13-8-2-0000]
+                                </option>
+                                <option value="336">(DP.GPN.0000) GERENCIA DE NOVOS NEGOCIOS [ID.10-13-4-0-0000]
+                                </option>
+                                <option value="337">(DP.GPN.DPNG.0000) DEPTO. DE GESTAO DE NEGOCIOS [ID.10-13-4-2-0000]
+                                </option>
+
+                                <option value="997">Não se aplica(m)</option>
+                                <option value="998">Inexistente(s)</option>
+                                <option value="999">Indefinido(a)(s)</option>
+                                <option value="1000">Não avaliado(a)(s)</option>
+                            </select>
+
+
+                        </div>
+
+                        <!-- Pergunta 7 -->
+                        <div class="form-group">
+                            <label for="identificadorAreaGestora">Identificador da Área Gestora CPTM - Campo
+                                Automático</label>
+                            <input type="text" name="identificadorAreaGestora" id="identificadorAreaGestora"
+                                placeholder="ID.10-15-5-3-0000" required disabled>
+                        </div>
+
+                        <!-- Pergunta 8 -->
+                        <div class="form-group">
+                            <label for="siglaAreaGestora">Sigla da Área Gestora CPTM - Campo Automático</label>
+                            <input type="text" name="siglaAreaGestora" id="siglaAreaGestora"
+                                placeholder="DO.GOT.DOTV.1000" required disabled>
+                        </div>
+
+                        <!-- Pergunta 9 -->
+                        <div class="form-group">
+                            <label for="supervisoraAmbiental">Nome (PJ) da Supervisora Ambiental</label>
+                            <input type="text" name="supervisoraAmbiental" id="supervisoraAmbiental"
+                                placeholder="Exemplo: Empresa Supervisora Ambiental Ltda - ESA" required disabled>
+                        </div>
+
+
+
+
+                        <div class="buttons">
+                            <button type="button" class="next" onclick="nextStep()">Avançar</button>
+                        </div>
+                    </div>
+
+                    <!-- Most other steps omitted for brevity in this file, but will be dynamically generated or kept similar -->
+
+                    <!-- We'll include the remaining steps minimally to keep structure; fields are disabled by default and have name attributes matching original -->
+
+                    <div class="form-step">
+                        <h2>2ª Etapa</h2>
+
+                        <!-- Pergunta 10 -->
+                        <div class="form-group">
+                            <label for="autorCadastramento">Autor(a) (PF) do Cadastramento</label>
+                            <input type="text" name="autorCadastramento" id="autorCadastramento" required disabled>
+                        </div>
+
+                        <!-- Pergunta 11 -->
+                        <div class="form-group">
+                            <label for="responsavelTecnico">Responsável Técnico - RT pelo Cadastramento</label>
+                            <input type="text" name="responsavelTecnico" id="responsavelTecnico" required disabled>
+                        </div>
+
+                        <!-- Pergunta 12 -->
+                        <div class="form-group">
+                            <label for="registroProfissional">Registro Profissional (do RT)</label>
+                            <input type="text" name="registroProfissional" id="registroProfissional" required disabled>
+                        </div>
+
+                        <!-- Pergunta 13 -->
+                        <div class="form-group">
+                            <label for="documentoResponsabilidadeTecnica">Documento de Responsabilidade Técnica (do
+                                RT)</label>
+                            <input type="text" name="DocRespTec" id="DocRespTec" required disabled>
+                        </div>
+                        <div class="buttons">
+                            <button type="button" class="prev" onclick="prevStep()">Voltar</button>
+                            <button type="button" class="next" onclick="nextStep()">Avançar</button>
+                        </div>
+                    </div>
+
+                    <div class="form-step">
+
+                        <h2>3ª Etapa</h2>
+
+                        <!-- Pergunta 14 -->
+                        <div class="form-group">
+                            <label for="naturezaPGA">Natureza (do PGA)</label>
+                            <select name="naturezaPGA" id="naturezaPGA" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="13">Áreas Ambientalmente Protegidas</option>
+                                <option value="3">Áreas Contaminadas</option>
+                                <option value="1">Arqueologia</option>
+                                <option value="18">Comunicação Social</option>
+                                <option value="17">Documentação</option>
+                                <option value="5">Efluente</option>
+                                <option value="4">Emissões Atmosféricas</option>
+                                <option value="8">Erosões e Movimentos de Massa</option>
+                                <option value="11">Fauna</option>
+                                <option value="10">Gerenciamento de Solo</option>
+                                <option value="16">Lançamentos Irregulares</option>
+                                <option value="2">Patrimônio Histórico</option>
+                                <option value="6">Produtos Perigosos</option>
+                                <option value="15">Recursos Hídricos</option>
+                                <option value="7">Resíduos Sólidos</option>
+                                <option value="14">Ruído e Vibração</option>
+                                <option value="20">Segmentação Urbana</option>
+                                <option value="19">Sinalização e Isolamento</option>
+                                <option value="9">Sistema de Drenagem, Inundações e Alagamentos</option>
+                                <option value="12">Vegetação</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+                            </select>
+                        </div>
+
+                        <!-- Pergunta 15 -->
+                        <div class="form-group">
+                            <label for="tipoFormulario">Tipo de Formulário - Campo Automático</label>
+                            <input type="text" name="tipoFormulario" id="tipoFormulario" required disabled>
+                        </div>
+
+                        <!-- Pergunta 16 -->
+                        <div class="form-group">
+                            <label for="dataEmissaoFormulario">Data de Emissão do Formulário</label>
+                            <input type="date" name="dataEmissaoFormulario" id="dataEmissaoFormulario" required
+                                disabled>
+                        </div>
+
+                        <!-- Pergunta 17 -->
+                        <div class="form-group">
+                            <label for="numeroFormulario">Número do Formulário</label>
+                            <input type="number" name="numeroFormulario" id="numeroFormulario" required disabled>
+                        </div>
+
+                        <!-- Pergunta 18 -->
+                        <div class="form-group">
+                            <label for="autorFormulario">Autor(a) (Pessoa Física) do Formulário</label>
+                            <input type="text" name="autorFormulario" id="autorFormulario" required disabled>
+                        </div>
+
+                        <!-- Pergunta 19 -->
+                        <div class="form-group">
+                            <label for="arquivoFDC">Nome do arquivo FDC relacionado - Campo Automático</label>
+                            <input type="text" name="arquivoFDC" id="arquivoFDC"
+                                placeholder="DeaoCtAr01823-02FdcEeaEfL10ProgaiaN000001" required disabled>
+                        </div>
+
+                        <!-- Pergunta 20 -->
+                        <div class="form-group">
+                            <label for="codigoFDC">Código do arquivo FDC relacionado - Campo Automático</label>
+                            <input type="text" name="codigoFDC" id="codigoFDC"
+                                placeholder="FDC-EEA.EF-A.2026-L.07-CPTM-N.000001" required disabled>
+                        </div>
+
+
+
+                        <div class="buttons">
+                            <button type="button" class="prev" onclick="prevStep()">Voltar</button>
+                            <button type="button" class="next" onclick="nextStep()">Avançar</button>
+                        </div>
+
+                    </div>
+
+                    <div class="form-step">
+
+                        <h2>4ª Etapa</h2>
+
+                        <!-- Pergunta 21 -->
+                        <div class="form-group">
+                            <label for="dataCadastramento">Data do Cadastramento</label>
+                            <input type="date" name="dataCadastramento" id="dataCadastramento" required disabled>
+                        </div>
+
+                        <!-- Pergunta 22 -->
+                        <div class="form-group">
+                            <label for="horaCadastramento">Hora do Cadastramento</label>
+                            <input type="time" name="horaCadastramento" id="horaCadastramento" required disabled>
+                        </div>
+
+                        <div class="buttons">
+                            <button type="button" class="prev" onclick="prevStep()">Voltar</button>
+                            <button type="button" class="next" onclick="nextStep()">Avançar</button>
+                        </div>
+
+                    </div>
+
+                    <div class="form-step">
+
+                        <h2>5ª Etapa</h2>
+
+                        <!-- Pergunta 23 -->
+                        <div class="form-group">
+                            <label for="ChavePrimaria">Chave Primária - Meio Ambiente - Campo Automático</label>
+                            <input type="number" name="ChavePrimaria" id="ChavePrimaria"
+                                placeholder="Exemplo: EEA.EF-A.2026-L.07-CPTM-N.000001" required disabled>
+                        </div>
+
+                        <!-- Pergunta 24 -->
+                        <div class="form-group">
+                            <label for="elementoMonitoramentoNumero">Elemento de Monitoramento - Número</label>
+                            <input type="number" name="elementoMonitoramentoNumero" id="elementoMonitoramentoNumero"
+                                placeholder="Escolher de 1 a 999.999" required disabled>
+                        </div>
+
+                        <!-- Pergunta 25 -->
+                        <div class="form-group">
+                            <label for="elementoMonitoramentoNome">Elemento de Monitoramento - Nome</label>
+                            <input type="text" name="elementoMonitoramentoNome" id="elementoMonitoramentoNome"
+                                placeholder="Exemplos: 1. 'Caçamba A'; 2.'Plataforma 1 da Estação Brás'" required
+                                disabled>
+                        </div>
+
+                        <!-- Botões de navegação -->
+                        <div class="buttons">
+                            <button type="button" class="prev" onclick="prevStep()">Voltar</button>
+                            <button type="button" class="next" onclick="nextStep()">Avançar</button>
+                        </div>
+
+                    </div>
+
+                    <div class="form-step">
+
+                        <h2>6ª Etapa</h2>
+
+                        <!-- Pergunta 26 -->
+                        <div class="form-group">
+
+                            <label for="municipio">Nome de Município</label>
+
+                            <select name="municipio" id="municipio" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="24">Arujá</option>
+                                <option value="10">Barueri</option>
+                                <option value="25">Biritiba-Mirim</option>
+                                <option value="6">Caieiras</option>
+                                <option value="26">Cajamar</option>
+                                <option value="4">Campo Limpo Paulista</option>
+                                <option value="11">Carapicuíba</option>
+                                <option value="27">Cotia</option>
+                                <option value="28">Diadema</option>
+                                <option value="29">Embú</option>
+                                <option value="30">Embú-Guaçu</option>
+                                <option value="20">Ferraz de Vasconcelos</option>
+                                <option value="5">Francisco Morato</option>
+                                <option value="7">Franco da Rocha</option>
+                                <option value="31">Guararema</option>
+                                <option value="23">Guarulhos</option>
+                                <option value="32">Itapecerica da Serra</option>
+                                <option value="8">Itapevi</option>
+                                <option value="21">Itaquaquecetuba</option>
+                                <option value="9">Jandira</option>
+                                <option value="2">Jundiaí</option>
+                                <option value="33">Juquitiba</option>
+                                <option value="46">Mairinque</option>
+                                <option value="34">Mairiporã</option>
+                                <option value="16">Mauá</option>
+                                <option value="18">Mogi das Cruzes</option>
+                                <option value="12">Osasco</option>
+                                <option value="35">Pirapora do Bom Jesus</option>
+                                <option value="22">Poá</option>
+                                <option value="14">Ribeirão Pires</option>
+                                <option value="13">Rio Grande da Serra</option>
+                                <option value="36">Salesópolis</option>
+                                <option value="37">Santa Isabel</option>
+                                <option value="38">Santana de Parnaíba</option>
+                                <option value="15">Santo André</option>
+                                <option value="45">Santos</option>
+                                <option value="39">São Bernardo do Campo</option>
+                                <option value="17">São Caetano do Sul</option>
+                                <option value="40">São Lourenço da Serra</option>
+                                <option value="1">São Paulo</option>
+                                <option value="43">São Roque</option>
+                                <option value="44">São Vicente</option>
+                                <option value="19">Suzano</option>
+                                <option value="41">Taboão da Serra</option>
+                                <option value="42">Vargem Grande Paulista</option>
+                                <option value="3">Várzea Paulista</option>
+                                <option value="99">Diversos (Ver Observação)</option>
+                                <option value="997">Não se aplica(m)</option>
+                                <option value="998">Inexistente(s)</option>
+                                <option value="999">Indefinido(a)(s)</option>
+                                <option value="1000">Não avaliado(a)(s)</option>
+                            </select>
+
+                        </div>
+
+
+
+                        <div class="form-group">
+                            <!-- Pergunta 27 -->
+
+                            <label for="linhaCPTM">Nome da Linha CPTM</label>
+
+                            <select name="linhaCPTM" id="linhaCPTM" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">Linha 07 - Rubi</option>
+                                <option value="2">Linha 08 - Diamante</option>
+                                <option value="3">Linha 09 - Esmeralda</option>
+                                <option value="4">Linha 10 - Turquesa</option>
+                                <option value="5">Linha 11 - Coral</option>
+                                <option value="6">Linha 12 - Safira</option>
+                                <option value="7">Linha 07 - Rubi / Linha 08 - Diamante</option>
+                                <option value="8">Linha 08 - Diamante / Linha 09 - Esmeralda</option>
+                                <option value="9">Linha 09 - Esmeralda / Linha 10 - Turquesa</option>
+                                <option value="10">Linha 07 - Rubi / Linha 08 - Diamante / Linha 11 - Coral</option>
+                                <option value="11">Linha 07 - Rubi / Linha 11 - Coral</option>
+                                <option value="12">Linha 10 - Turquesa / Linha 11 - Coral</option>
+                                <option value="13">Linha 11 - Coral / Linha 12 - Safira</option>
+                                <option value="14">Linha 10 - Turquesa / Linha 11 - Coral / Linha 12 - Safira</option>
+                                <option value="15">Linha 07 - Rubi / Linha 08 - Diamante / Linha 09 - Esmeralda / Linha
+                                    10 - Turquesa / Linha 11 - Coral</option>
+                                <option value="16">Linha 08 - Diamante / Linha 09 - Esmeralda / Linha 10 - Turquesa /
+                                    Linha 11 - Coral / Linha 12 - Safira</option>
+                                <option value="17">Linha 07 - Rubi / Linha 08 - Diamante / Linha 10 - Turquesa / Linha
+                                    11 - Coral / Linha 12 - Safira</option>
+                                <option value="18">Sem linha associada</option>
+                                <option value="19">Linha 07 - Rubi / Linha 08 - Diamante / Linha 09 - Esmeralda / Linha
+                                    10 - Turquesa / Linha 11 - Coral / Linha 12 - Safira</option>
+                                <option value="20">Linha 13 - Jade</option>
+                                <option value="21">Linha 05 - Lilás</option>
+                                <option value="22">Linha 11 - Coral / Linha 12 - Safira / Linha 13 - Jade</option>
+                                <option value="23">Linha 10 - Turquesa / Linha 11 - Coral / Linha 12 - Safira / Linha 13
+                                    - Jade</option>
+                                <option value="24">Linha 07 - Rubi / Linha 10 - Turquesa</option>
+                                <option value="25">Linha JJ - Baixada Santista</option>
+                                <option value="26">Linha 09 - Esmeralda / Linha 05 - Lilás</option>
+                                <option value="27">Linha 07 - Rubi / Linha 08 - Diamante / Linha 09 - Esmeralda / Linha
+                                    12 - Safira</option>
+                                <option value="28">Linha 07 - Rubi / Linha 12 - Safira</option>
+                                <option value="29">Linha 07 - Rubi / Linha 09 - Esmeralda</option>
+                                <option value="30">Linha 08 - Diamante / Linha 10 - Turquesa / Linha 11 - Coral / Linha
+                                    12 - Safira</option>
+                                <option value="31">Linha 08 - Diamante / Linha 09 - Esmeralda / Linha 10 - Turquesa /
+                                    Linha 11 - Coral / Linha 12 - Safira / Linha JJ - Baixada Santista</option>
+                                <option value="32">Linha não informada</option>
+                                <option value="33">Linha 12 - Safira / Linha 13 - Jade</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+                            </select>
+
+                        </div>
+
+                        <!-- Pergunta 28 -->
+                        <div class="form-group">
+
+                            <label for="NomeEstacaoCPTM">Nome da Estação CPTM</label>
+
+                            <select name="NomeEstacaoCPTM" id="NomeEstacaoCPTM" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">Estação Aeroporto Guarulhos</option>
+                                <option value="2">Estação Água Branca</option>
+                                <option value="3">Estação Antonio Gianetti Neto</option>
+                                <option value="4">Estação Antônio João</option>
+                                <option value="5">Estação Aracaré</option>
+                                <option value="6">Estação Autódromo</option>
+                                <option value="7">Estação Baltazar Fidelis</option>
+                                <option value="8">Estação Barueri</option>
+                                <option value="9">Estação Berrini</option>
+                                <option value="10">Estação Botujuru</option>
+                                <option value="11">Estação Brás</option>
+                                <option value="12">Estação Brás Cubas</option>
+                                <option value="13">Estação Caieiras</option>
+                                <option value="14">Estação Calmon Viana</option>
+                                <option value="15">Estação Campo Limpo Paulista</option>
+                                <option value="16">Estação Capuava</option>
+                                <option value="17">Estação Carapicuíba</option>
+                                <option value="18">Estação Ceasa</option>
+                                <option value="19">Estação Cidade Jardim</option>
+                                <option value="20">Estação Cidade Universitária</option>
+                                <option value="21">Estação Comandante Sampaio</option>
+                                <option value="22">Estação Comendador Ermelino</option>
+                                <option value="23">Estação Corinthians - Itaquera</option>
+                                <option value="24">Estação Dom Bosco</option>
+                                <option value="25">Estação Domingos de Morais</option>
+                                <option value="26">Estação Engenheiro Cardoso</option>
+                                <option value="27">Estação Engenheiro Goulart</option>
+                                <option value="28">Estação Engenheiro Manoel Feio</option>
+                                <option value="29">Estação Estudantes</option>
+                                <option value="30">Estação Ferraz de Vasconcelos</option>
+                                <option value="31">Estação Francisco Morato</option>
+                                <option value="32">Estação Franco da Rocha</option>
+                                <option value="33">Estação General Miguel Costa</option>
+                                <option value="34">Estação Grajaú</option>
+                                <option value="35">Estação Granja Julieta</option>
+                                <option value="36">Estação Guaianazes</option>
+                                <option value="37">Estação Guapituba</option>
+                                <option value="38">Estação Guarulhos Cecap</option>
+                                <option value="39">Estação Hebraica - Rebouças</option>
+                                <option value="40">Estação Imperatriz Leopoldina</option>
+                                <option value="41">Estação Ipiranga</option>
+                                <option value="42">Estação Itaim Paulista</option>
+                                <option value="43">Estação Itapevi</option>
+                                <option value="44">Estação Itaquaquecetuba</option>
+                                <option value="45">Estação Jandira</option>
+                                <option value="46">Estação Jaraguá</option>
+                                <option value="47">Estação Jardim Belval</option>
+                                <option value="48">Estação Jardim Helena - Vila Mara</option>
+                                <option value="49">Estação Jardim Romano</option>
+                                <option value="50">Estação Jardim Silveira</option>
+                                <option value="51">Estação João Dias</option>
+                                <option value="52">Estação José Bonifácio</option>
+                                <option value="53">Estação Júlio Prestes</option>
+                                <option value="54">Estação Jundiaí</option>
+                                <option value="55">Estação Jundiapeba</option>
+                                <option value="56">Estação Jurubatuba</option>
+                                <option value="57">Estação Lapa (Linha 7)</option>
+                                <option value="58">Estação Lapa (Linha 8)</option>
+                                <option value="59">Estação Luz</option>
+                                <option value="60">Estação Mauá</option>
+                                <option value="61">Estação Mendes / Bruno Covas</option>
+                                <option value="62">Estação Mogi das Cruzes</option>
+                                <option value="63">Estação Móoca</option>
+                                <option value="64">Estação Morumbi</option>
+                                <option value="65">Estação Osasco</option>
+                                <option value="66">Estação Palmeiras - Barra Funda</option>
+                                <option value="67">Estação Parada Amador Bueno</option>
+                                <option value="68">Estação Perus</option>
+                                <option value="69">Estação Pinheiros</option>
+                                <option value="70">Estação Piqueri</option>
+                                <option value="71">Estação Pirituba</option>
+                                <option value="72">Estação Poá</option>
+                                <option value="73">Estação Prefeito Celso Daniel - Santo André</option>
+                                <option value="74">Estação Prefeito Saladino</option>
+                                <option value="75">Estação Presidente Altino</option>
+                                <option value="76">Estação Primavera - Interlagos</option>
+                                <option value="77">Estação Quitaúna</option>
+                                <option value="78">Estação Ribeirão Pires</option>
+                                <option value="79">Estação Rio Grande da Serra</option>
+                                <option value="80">Estação Sagrado Coração</option>
+                                <option value="81">Estação Santa Rita</option>
+                                <option value="82">Estação Santa Terezinha</option>
+                                <option value="83">Estação Santo Amaro (Linha 9)</option>
+                                <option value="84">Estação São Caetano</option>
+                                <option value="85">Estação São Miguel Paulista</option>
+                                <option value="86">Estação Socorro</option>
+                                <option value="87">Estação Suzano</option>
+                                <option value="88">Estação Tamanduateí</option>
+                                <option value="89">Estação Tatuapé</option>
+                                <option value="90">Estação USP Leste</option>
+                                <option value="91">Estação Utinga</option>
+                                <option value="92">Estação Várzea Paulista</option>
+                                <option value="93">Estação Vila Aurora</option>
+                                <option value="94">Estação Vila Clarice</option>
+                                <option value="95">Estação Vila Olímpia</option>
+                                <option value="96">Estação Villa-Lobos - Jaguaré</option>
+                                <option value="997">Não se aplica(m)</option>
+                                <option value="998">Inexistente(s)</option>
+                                <option value="999">Indefinido(a)(s)</option>
+                                <option value="1000">Não avaliado(a)(s)</option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- Pergunta 29 -->
+                        <div class="form-group">
+                            <label for="numeroViaLinha">Número da Via da Linha CPTM</label>
+
+                            <select name="numeroViaLinha" id="numeroViaLinha" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">Via 01</option>
+                                <option value="2">Via 02</option>
+                                <option value="3">Via 03</option>
+                                <option value="4">Via 04</option>
+                                <option value="5">Via 05</option>
+                                <option value="6">Via 06</option>
+                                <option value="7">Via 08</option>
+                                <option value="8">Via 09</option>
+                                <option value="9">Via 10</option>
+                                <option value="10">Via 01S - Trecho 1</option>
+                                <option value="11">Via 01S - Trecho 2</option>
+                                <option value="12">Via 02S - Trecho 1</option>
+                                <option value="13">Via 02S - Trecho 2</option>
+                                <option value="14">Via 03S - Trecho 2</option>
+                                <option value="15">Via 03E - Trecho 2</option>
+                                <option value="16">Via 04E - Trecho 2</option>
+                                <option value="17">Via Auxiliar</option>
+                                <option value="18">Via Variante</option>
+                                <option value="19">Travessão - AMV</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+                            </select>
+
+                        </div>
+
+                        <!-- Pergunta 30 -->
+                        <div class="form-group">
+                            <label for="trechoSentidoLinha">Trecho e Sentido da Linha CPTM</label>
+
+                            <select name="trechoSentidoLinha" id="trechoSentidoLinha" required disabled>
+
+                                <option value="" disabled selected>Selecione uma opção</option>
+
+                                <option value="62">Estação Aeroporto Guarulhos - Estação Guarulhos - Cecap</option>
+                                <option value="126">Estação Aeroporto Guarulhos - Final dos Trilhos</option>
+                                <option value="38">Estação Água Branca - Estação Lapa</option>
+                                <option value="40">Estação Água Branca - Estação Lapa (Linha 07)</option>
+                                <option value="118">Estação Água Branca - Estação Palmeiras - Barra Funda</option>
+                                <option value="107">Estação Antônio Gianetti Neto - Estação Ferraz de Vasconcelos
+                                </option>
+                                <option value="41">Estação Antônio Gianetti Neto - Estação Guaianazes</option>
+                                <option value="84">Estação Aracaré - Estação Calmon Viana</option>
+                                <option value="48">Estação Aracaré - Estação de Itaquaquecetuba</option>
+                                <option value="87">Estação Baltazar Fidelis - Estação de Franco da Rocha</option>
+                                <option value="23">Estação Baltazar Fidelis - Estação Francisco Morato</option>
+                                <option value="117">Estação Barra Funda - Estação Luz</option>
+                                <option value="51">Estação Botujuru - Estação Campo Limpo Paulista</option>
+                                <option value="85">Estação Botujuru - Estação Francisco Morato</option>
+                                <option value="13">Estação Brás Cubas - Estação Jundiapeba</option>
+                                <option value="77">Estação Brás Cubas - Estação Mogi das Cruzes</option>
+                                <option value="25">Estação Caieiras - Estação Franco da Rocha</option>
+                                <option value="89">Estação Caieiras - Estação Perus</option>
+                                <option value="21">Estação Calmon Viana - Estação Aracaré</option>
+                                <option value="45">Estação Calmon Viana - Estação Poá</option>
+                                <option value="74">Estação Calmon Viana - Estação Suzano</option>
+                                <option value="114">Estação Campo Limpo Paulista - Estação Botujuru</option>
+                                <option value="50">Estação Campo Limpo Paulista - Estação Várzea Paulista</option>
+                                <option value="67">Estação Capuava - Estação Mauá</option>
+                                <option value="3">Estação Capuava - Estação Santo André</option>
+                                <option value="81">Estação Com. Ermelino Matarazzo - Estação São Miguel Paulista
+                                </option>
+                                <option value="58">Estação Comendador Ermelino Matarazzo - Estação USP Leste</option>
+                                <option value="120">Estação Corinthians - Itaquera - Estação Dom Bosco</option>
+                                <option value="9">Estação Corinthians - Itaquera - Estação Tatuapé</option>
+                                <option value="97">Estação da Mooca - Estação Ipiranga</option>
+                                <option value="33">Estação da Mooca - Estação Roosevelt/Brás</option>
+                                <option value="24">Estação de Franco da Rocha - Estação Baltazar Fidelis</option>
+                                <option value="111">Estação de Itaquaquecetuba - Estação Aracaré</option>
+                                <option value="47">Estação de Itaquaquecetuba - Estação Engenheiro Manoel Feio</option>
+                                <option value="8">Estação de Paranapiacaba - Estação Rio Grande da Serra</option>
+                                <option value="106">Estação de Paranapiacaba - Final dos Trilhos</option>
+                                <option value="57">Estação Dom Bosco - Estação Corinthians - Itaquera</option>
+                                <option value="73">Estação Dom Bosco - Estação José Bonifácio</option>
+                                <option value="124">Estação Engenheiro Goulart - Estação Guarulhos - Cecap</option>
+                                <option value="20">Estação Engenheiro Goulart - Estação Tatuapé</option>
+                                <option value="82">Estação Engenheiro Goulart - Estação USP Leste</option>
+                                <option value="110">Estação Engenheiro Manoel Feio - Estação de Itaquaquecetuba</option>
+                                <option value="60">Estação Engenheiro Manoel Feio - Estação Jardim Romano</option>
+                                <option value="15">Estação Estudantes - Estação Mogi das Cruzes</option>
+                                <option value="102">Estação Estudantes - Final dos Trilhos</option>
+                                <option value="44">Estação Ferraz de Vasconcelos - Estação Antônio Gianetti Neto
+                                </option>
+                                <option value="109">Estação Ferraz de Vasconcelos - Estação Poá</option>
+                                <option value="86">Estação Francisco Morato - Estação Baltazar Fidelis</option>
+                                <option value="22">Estação Francisco Morato - Estação Botujuru</option>
+                                <option value="88">Estação Franco da Rocha - Estação Caieiras</option>
+                                <option value="104">Estação Guaianazes - Estação Antônio Gianetti Neto</option>
+                                <option value="42">Estação Guaianazes - Estação José Bonifácio</option>
+                                <option value="5">Estação Guapituba - Estação Mauá</option>
+                                <option value="69">Estação Guapituba - Estação Ribeirão Pires</option>
+                                <option value="125">Estação Guarulhos - Cecap - Estação Aeroporto Guarulhos</option>
+                                <option value="61">Estação Guarulhos - Cecap - Estação Engenheiro Goulart</option>
+                                <option value="34">Estação Ipiranga - Estação da Mooca</option>
+                                <option value="98">Estação Ipiranga - Estação Tamanduateí</option>
+                                <option value="59">Estação Itaim Paulista - Estação Jardim Helena - Vila Mara</option>
+                                <option value="79">Estação Itaim Paulista - Estação Jardim Romano</option>
+                                <option value="56">Estação Jaraguá - Estação Vila Aurora</option>
+                                <option value="91">Estação Jaraguá - Estação Vila Clarisse</option>
+                                <option value="122">Estação Jardim Helena - Vila Mara - Estação Itaim Paulista</option>
+                                <option value="17">Estação Jardim Helena - Vila Mara - Estação São Miguel Paulista
+                                </option>
+                                <option value="123">Estação Jardim Romano - Estação Engenheiro Manoel Feio</option>
+                                <option value="16">Estação Jardim Romano - Estação Itaim Paulista</option>
+                                <option value="10">Estação José Bonifácio - Estação Dom Bosco</option>
+                                <option value="105">Estação José Bonifácio - Estação Guaianazes</option>
+                                <option value="116">Estação Jundiaí - Estação Várzea Paulista</option>
+                                <option value="52">Estação Jundiaí - Final dos Trilhos</option>
+                                <option value="76">Estação Jundiapeba - Estação Brás Cubas</option>
+                                <option value="12">Estação Jundiapeba - Estação Suzano</option>
+                                <option value="101">Estação Lapa - Estação Água Branca</option>
+                                <option value="103">Estação Lapa (Linha 07) - Estação Água Branca</option>
+                                <option value="31">Estação Lapa (Linha 07) - Estação Piqueri</option>
+                                <option value="54">Estação Luz - Estação Barra Funda</option>
+                                <option value="95">Estação Luz - Estação Roosevelt/Brás</option>
+                                <option value="4">Estação Mauá - Estação Capuava</option>
+                                <option value="68">Estação Mauá - Estação Guapituba</option>
+                                <option value="14">Estação Mogi das Cruzes - Estação Brás Cubas</option>
+                                <option value="78">Estação Mogi das Cruzes - Estação Estudantes</option>
+                                <option value="55">Estação Palmeiras - Barra Funda - Estação Água Branca</option>
+                                <option value="26">Estação Perus - Estação Caieiras</option>
+                                <option value="90">Estação Perus - Estação Vila Aurora</option>
+                                <option value="94">Estação Piqueri - Estação Lapa (Linha 07)</option>
+                                <option value="30">Estação Piqueri - Estação Pirituba</option>
+                                <option value="93">Estação Pirituba - Estação Piqueri</option>
+                                <option value="29">Estação Pirituba - Estação Vila Clarisse</option>
+                                <option value="108">Estação Poá - Estação Calmon Viana</option>
+                                <option value="46">Estação Poá - Estação Ferraz de Vasconcelos</option>
+                                <option value="65">Estação Prefeito Saladino - Estação Santo André</option>
+                                <option value="1">Estação Prefeito Saladino - Estação Utinga</option>
+                                <option value="6">Estação Ribeirão Pires - Estação Guapituba</option>
+                                <option value="70">Estação Ribeirão Pires - Estação Rio Grande da Serra</option>
+                                <option value="71">Estação Rio Grande da Serra - Estação de Paranapiacaba</option>
+                                <option value="7">Estação Rio Grande da Serra - Estação Ribeirão Pires</option>
+                                <option value="96">Estação Roosevelt/Brás - Estação da Mooca</option>
+                                <option value="32">Estação Roosevelt/Brás - Estação Luz</option>
+                                <option value="112">Estação Roosevelt/Brás - Estação Tatuapé</option>
+                                <option value="66">Estação Santo André - Estação Capuava</option>
+                                <option value="2">Estação Santo André - Estação Prefeito Saladino</option>
+                                <option value="36">Estação São Caetano - Estação Tamanduateí</option>
+                                <option value="100">Estação São Caetano - Estação Utinga</option>
+                                <option value="18">Estação São Miguel Paulista - Estação Com. Ermelino Matarazzo
+                                </option>
+                                <option value="80">Estação São Miguel Paulista - Estação Jardim Helena - Vila Mara
+                                </option>
+                                <option value="11">Estação Suzano - Estação Calmon Viana</option>
+                                <option value="75">Estação Suzano - Estação Jundiapeba</option>
+                                <option value="35">Estação Tamanduateí - Estação Ipiranga</option>
+                                <option value="99">Estação Tamanduateí - Estação São Caetano</option>
+                                <option value="72">Estação Tatuapé - Estação Corinthians - Itaquera</option>
+
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+
+                            </select>
+
+
+                        </div>
+
+                        <!-- Pergunta 31 -->
+                        <div class="form-group">
+                            <label for="quilometroPoste">Número do Quilômetro e Poste</label>
+                            <input type="text" name="quilometroPoste" id="quilometroPoste"
+                                placeholder="Exemplo: '51/02' ou '210/125'" required disabled>
+                        </div>
+
+                        <!-- Pergunta 32 -->
+                        <div class="form-group">
+                            <label for="latitude">Latitude em Graus (Datum: WGS84)</label>
+                            <input type="number" name="latitude" id="latitude" placeholder="Exemplo: -23.55052" required
+                                disabled>
+                        </div>
+
+                        <!-- Pergunta 33 -->
+                        <div class="form-group">
+                            <label for="longitude">Longitude em Graus (Datum: WGS84)</label>
+                            <input type="number" name="longitude" id="longitude" placeholder="Exemplo: -46.63331"
+                                required disabled>
+                        </div>
+
+                        <div class="form-group map-section">
+                            <div class="map-actions">
+                                <button type="button" class="map-btn" onclick="capturarLocalizacaoAtual()">
+                                    Usar localização atual
+                                </button>
+                            </div>
+
+                            <div id="mapaLocalizacao" class="mapa-localizacao"></div>
+                            <p class="map-hint">Clique no botão para preencher latitude/longitude automaticamente e
+                                atualizar o mapa.</p>
+                        </div>
+
+                        <div class="buttons">
+                            <button type="button" class="prev" onclick="prevStep()">Voltar</button>
+                            <button type="button" class="next" onclick="nextStep()">Avançar</button>
+                        </div>
+
+                    </div>
+
+                    <div class="form-step">
+
+                        <h2>7ª Etapa</h2>
+
+                        <!-- Pergunta 34 -->
+                        <div class="form-group">
+
+                            <label for="atividade">Tipo de Atividade (Listada)</label>
+
+                            <select name="atividade" id="atividade" required disabled>
+
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">Estação de Tratamento de Efluente</option>
+                                <option value="2">Transporte</option>
+                                <option value="96">Outro(a)(s)</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+
+                            </select>
+
+
+                        </div>
+
+                        <!-- Pergunta 35 -->
+                        <div class="form-group">
+
+                            <label for="atividadeNaoListada">Tipo de Atividade (Não Listada)</label>
+
+                            <input type="text" name="atividadeNaoListada" id="atividadeNaoListada"
+                                placeholder="Inserir o tipo de atividade (não listada) relacionada ao elemento de monitoramento quando 'Tipo de Atividade (Listada)' for 'Outro(a)(s)'."
+                                required disabled>
+
+
+                        </div>
+
+                        <!-- Pergunta 36 -->
+                        <div class="form-group">
+
+                            <label for="draListado">Tipo de DRA (Listado)</label>
+
+                            <select name="draListado" id="draListado" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">Cadastro Técnico Federal (IBAMA) - CTF/IBAMA</option>
+                                <option value="2">Certificado de Dispensa de Licença - CDL</option>
+                                <option value="3">Certificado de Movimentação de Resíduos de Interesse Ambiental - CADRI
+                                </option>
+                                <option value="4">Declaração de Movimentação de Resíduos - DMR</option>
+                                <option value="5">Ficha de Informações de Segurança de Produtos Químicos - FISPQ
+                                </option>
+                                <option value="6">Licença de Operação - LO</option>
+                                <option value="7">Manifesto de Transporte de Resíduos - MTR</option>
+                                <option value="96">Outro(a)(s)</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- Pergunta 37 -->
+                        <div class="form-group">
+
+                            <label for="draNaoListada">Tipo de DRA (Não Listado)</label>
+
+                            <input type="text" name="draNaoListada" id="draNaoListada"
+                                placeholder="Inserir o tipo de DRA (não listado) relacionado ao elemento de monitoramento quando 'Tipo de DRA (Listado)' for 'Outro(a)(s)'."
+                                required disabled>
+
+                        </div>
+
+                        <!-- Pergunta 38 -->
+                        <div class="form-group">
+
+                            <label for="codigoDRA">Código Identificador do DRA</label>
+
+                            <input type="number" name="codigoDRA" id="codigoDRA"
+                                placeholder="Inserir o código identificador do DRA relacionado ao elemento de monitoramento."
+                                required disabled>
+
+                        </div>
+
+                        <!-- Pergunta 39 -->
+                        <div class="form-group">
+
+                            <label for="dataValidadeDRA">Data de Validade do DRA</label>
+
+                            <input type="date" name="dataValidadeDRA" id="dataValidadeDRA"
+                                placeholder="Inserir a data de validade do DRA relacionado ao elemento de monitoramento."
+                                required disabled>
+
+                        </div>
+
+                        <!-- Botões de Navegação -->
+                        <div class="buttons">
+                            <button type="button" class="prev" onclick="prevStep()">Voltar</button>
+                            <button type="button" class="next" onclick="nextStep()">Avançar</button>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-step">
+
+                        <h2>8ª Etapa</h2>
+
+                        <!-- Pergunta 40 -->
+                        <div class="form-group">
+
+                            <label for="TipoAtividadeCPTM">Tipo de Atividade na CPTM</label>
+
+                            <select name="TipoAtividadeCPTM" id="TipoAtividadeCPTM" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">Empreendimento/Obra</option>
+                                <option value="2">Manutenção</option>
+                                <option value="3">Operação</option>
+                                <option value="96">Outro(a)(s)</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+                            </select>
+
+                        </div>
+
+                        <!-- Pergunta 41 -->
+                        <div class="form-group">
+
+                            <label for="NomeEdificacao">Nome Edificação/Local (Complemento)</label>
+
+                            <select name="NomeEdificacao" id="NomeEdificacao" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">Abrigo</option>
+                                <option value="2">Base de manutenção</option>
+                                <option value="3">Cabine Primária</option>
+                                <option value="4">Cabine Seccionadora</option>
+                                <option value="5">Estação</option>
+                                <option value="6">Lavador de TUE</option>
+                                <option value="7">Oficina</option>
+                                <option value="8">Pátio</option>
+                                <option value="9">Prédio administrativo</option>
+                                <option value="10">Prédio de apoio</option>
+                                <option value="11">Sala técnica</option>
+                                <option value="12">Subestação</option>
+                                <option value="13">Trecho - Km/poste</option>
+                                <option value="14">Vários</option>
+                                <option value="96">Outro(a)(s)</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- Pergunta 42 -->
+                        <div class="form-group">
+
+                            <label for="NomeEdificacaoComplemento">Nome Edificação/Local (Complemento)</label>
+
+                            <input type="text" name="NomeEdificacaoComplemento" id="NomeEdificacaoComplemento"
+                                placeholder=" Inserir o complemento do nome da edificação/local na CPTM. Ex.: 'Brás'"
+                                required disabled>
+
+                        </div>
+
+                        <!-- Pergunta 43 -->
+                        <div class="form-group">
+
+                            <label for="OrigemEfluente">Origem do Efluente</label>
+
+                            <select name="OrigemEfluente" id="OrigemEfluente" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">Doméstico/Sanitário</option>
+                                <option value="2">Fundação</option>
+                                <option value="3">Industrial</option>
+                                <option value="96">Outro(a)(s)</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+                            </select>
+
+
+                        </div>
+
+                        <!-- Pergunta 44 -->
+                        <div class="form-group">
+
+                            <label for="FonteGeradoraEfluente">Fonte Geradora do Efluente</label>
+
+                            <select name="FonteGeradoraEfluente" id="FonteGeradoraEfluente" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">Atividade de obra</option>
+                                <option value="2">Banheiro químico</option>
+                                <option value="3">Banheiros/vestiários/refeitórios</option>
+                                <option value="4">Fossa séptica</option>
+                                <option value="5">Lavagem de trens/peças</option>
+                                <option value="6">Manutenção ETE</option>
+                                <option value="7">Valas de manutenção</option>
+                                <option value="96">Outro(a)(s)</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+                            </select>
+
+
+                        </div>
+
+                        <!-- Pergunta 45 -->
+                        <div class="form-group">
+
+                            <label for="QuantidadeEfluente">Quantidade (Litros)</label>
+
+                            <input type="number" name="QuantidadeEfluente" id="QuantidadeEfluente"
+                                placeholder="Inserir a quantidade de efluente gerado em litros." required disabled>
+
+                        </div>
+
+
+                        <!-- Pergunta 46 -->
+                        <div class="form-group">
+
+                            <label for="TipoDestinacaoEfluente">Tipo de Destinação do Efluente</label>
+
+                            <select name="TipoDestinacaoEfluente" id="TipoDestinacaoEfluente" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">Esgotamento e transporte</option>
+                                <option value="2">Interligação em rede coletora</option>
+                                <option value="3">Lançamento em galeria de águas pluviais</option>
+                                <option value="4">Reinfiltração</option>
+                                <option value="5">Tratamento em ETE</option>
+                                <option value="96">Outro(a)(s)</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+                            </select>
+
+
+
+                        </div>
+
+                        <!-- Pergunta 47 -->
+                        <div class="form-group">
+
+                            <label for="TipoVeiculo">Tipo de Veículo</label>
+
+                            <select name="TipoVeiculo" id="TipoVeiculo" required disabled>
+                                <option value="" disabled selected>Selecione uma opção</option>
+                                <option value="1">Caminhão</option>
+                                <option value="96">Outro(a)(s)</option>
+                                <option value="97">Não se aplica(m)</option>
+                                <option value="98">Inexistente(s)</option>
+                                <option value="99">Indefinido(a)(s)</option>
+                                <option value="100">Não avaliado(a)(s)</option>
+                            </select>
+
+                        </div>
+
+
+                        <!-- Pergunta 48 -->
+                        <div class="form-group">
+
+                            <label for="IdentificadorVeiculo">Identificador/Placa do Veículo</label>
+
+                            <input type="text" name="IdentificadorVeiculo" id="IdentificadorVeiculo"
+                                placeholder="Exemplo: WAD 105D" required disabled>
+
+                        </div>
+
+                        <!-- Pergunta 49 -->
+                        <div class="form-group">
+
+                            <label for="codigoGuiaRemessa">Código Identificador da Guia de Remessa</label>
+
+                            <input type="text" name="codigoGuiaRemessa" id="codigoGuiaRemessa"
+                                placeholder="Exemplo: 10.456" required disabled>
+
+                        </div>
+
+                        <!-- Pergunta 50 -->
+                        <div class="form-group">
+
+                            <label for="distanciaViaCPTM">Distância da Via CPTM (Metros)</label>
+
+                            <input type="number" name="distanciaViaCPTM" id="distanciaViaCPTM"
+                                placeholder="Exemplo: 7,58" required disabled>
+                        </div>
+
+                        <!-- Pergunta 51 -->
+                        <div class="form-group">
+
+                            <label for="observacoesGerais">Observações Gerais: Cadastramento</label>
+
+                            <input type="text" name="observacoesGerais" id="observacoesGerais"
+                                placeholder="Exemplo: Observações gerais sobre o cadastramento." required disabled>
+
+                        </div>
+
+                        <!-- Botões de Navegação -->
+                        <div class="buttons">
+                            <button type="button" class="prev" onclick="prevStep()">Voltar</button>
+                            <button type="button" class="next" onclick="nextStep()">Avançar</button>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-step">
+                        <h2>9ª Etapa</h2>
+
+                        <div class="form-group">
+                            <label for="Fotografia1">Fotografia 1</label>
+                            <input type="file" name="Fotografia1" id="Fotografia1" accept="image/*" required disabled>
+                            <div class="image-preview" id="previewFotografia1" aria-hidden="true"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Fotografia2">Fotografia 2</label>
+                            <input type="file" name="Fotografia2" id="Fotografia2" accept="image/*" required disabled>
+                            <div class="image-preview" id="previewFotografia2" aria-hidden="true"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Fotografia3">Fotografia 3</label>
+                            <input type="file" name="Fotografia3" id="Fotografia3" accept="image/*" required disabled>
+                            <div class="image-preview" id="previewFotografia3" aria-hidden="true"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Fotografia4">Fotografia 4</label>
+                            <input type="file" name="Fotografia4" id="Fotografia4" accept="image/*" required disabled>
+                            <div class="image-preview" id="previewFotografia4" aria-hidden="true"></div>
+                        </div>
+
+                        <div class="buttons">
+                            <button type="button" class="prev" onclick="prevStep()">Voltar</button>
+                            <button type="button" class="primary-action"
+                                onclick="atualizarFormulario(event)">Atualizar</button>
+                            <button type="button" class="secondary-action"
+                                onclick="excluirFormulario()">Excluir</button>
+                        </div>
+                    </div>
+
+                </form>
+
+            </section>
+
+    </main>
+
+    <script>
+        // Garantir parseJwt disponível globalmente (fallback rápido)
+        if (!window.parseJwt) {
+            window.parseJwt = function (token) {
+                try {
+                    const t = (token || '').toString().replace(/^Bearer\s+/i, '');
+                    const parts = t.split('.');
+                    if (parts.length < 2) return null;
+                    const b = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    const pad = b.length % 4;
+                    const padded = b + (pad ? '='.repeat(4 - pad) : '');
+                    const json = decodeURIComponent(atob(padded).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                    return JSON.parse(json);
+                } catch (e) { return null; }
+            };
+        }
+        const steps = document.querySelectorAll('.step');
+        const formSteps = document.querySelectorAll('.form-step');
+        let currentStep = 0;
+
+        function updateForm() {
+            formSteps.forEach((step, index) => {
+                step.classList.toggle('active', index === currentStep);
+            });
+
+            steps.forEach((step, index) => {
+                step.classList.toggle('active', index <= currentStep);
+            });
+
+            if (currentStep === 6) {
+                setTimeout(() => {
+                    if (!mapaLocalizacao) {
+                        inicializarMapaLocalizacao();
+                    }
+                    inicializarMapaLocalizacao();
+                    if (mapaLocalizacao) {
+                        mapaLocalizacao.invalidateSize();
+                    }
+                }, 80);
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < formSteps.length - 1) {
+                currentStep++;
+                updateForm();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateForm();
+            }
+        }
+
+        updateForm();
+
+        function ValidarAutenticacao(token) {
+            if (!token) {
+                alert('Você precisa estar logado para acessar esta página.');
+                window.location.href = 'index copy.html';
+            }
+        }
+
+        // Insert an "Editar" button into each form-group to toggle editing
+        function inserirBotoesEditar() {
+            const groups = document.querySelectorAll('.form-group');
+            groups.forEach(group => {
+                // find the first control in the group
+                const control = group.querySelector('input, select, textarea');
+                if (!control) return;
+
+                // create wrapper .input-row and move the control inside it
+                const wrapper = document.createElement('div');
+                wrapper.className = 'input-row';
+                // insert wrapper before control
+                group.insertBefore(wrapper, control);
+                // move control into wrapper
+                wrapper.appendChild(control);
+
+                // create edit button and append inside wrapper so it aligns with the control
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'edit-btn';
+                btn.textContent = 'Editar';
+                btn.addEventListener('click', () => toggleGroupEditing(group, btn));
+                wrapper.appendChild(btn);
+            });
+        }
+
+        function toggleGroupEditing(group, btn) {
+            const inputs = group.querySelectorAll('input, select, textarea');
+            const anyDisabled = Array.from(inputs).some(i => i.disabled);
+            inputs.forEach(i => i.disabled = !anyDisabled);
+            btn.textContent = anyDisabled ? 'Bloquear' : 'Editar';
+        }
+
+        function getUserIdFromToken(token) {
+            if (!token) return null;
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                return payload.sub || payload.id || payload.userId || null;
+            } catch (e) {
+                console.error('JWT inválido', e);
+                return null;
+            }
+        }
+
+        function getQueryParam(name) {
+            const url = new URL(window.location.href);
+            return url.searchParams.get(name);
+        }
+
+        /**
+         * Define o valor de um <select> a partir do valor recebido da API.
+         * Tenta primeiro por value (convertendo para string), depois por texto da opção.
+         * Retorna true se encontrou correspondência, false caso contrário.
+         */
+        function setSelectValue(selectEl, rawValue) {
+            if (rawValue === null || rawValue === undefined || rawValue === '') return false;
+            const strValue = String(rawValue);
+
+            // 1ª tentativa: match exato pelo atributo value
+            const byValue = Array.from(selectEl.options).find(o => o.value === strValue);
+            if (byValue) {
+                // Usar .selected = true é mais confiável em selects desabilitados
+                Array.from(selectEl.options).forEach(o => o.selected = false);
+                byValue.selected = true;
+                return true;
+            }
+
+            // 2ª tentativa: match pelo texto da opção (caso API retorne o label em vez do id)
+            const normalized = strValue.trim().toLowerCase();
+            const byText = Array.from(selectEl.options).find(
+                o => o.text.trim().toLowerCase() === normalized
+            );
+            if (byText) {
+                Array.from(selectEl.options).forEach(o => o.selected = false);
+                byText.selected = true;
+                return true;
+            }
+
+            // Sem correspondência
+            console.warn(`setSelectValue: nenhuma opção encontrada para "${rawValue}" em #${selectEl.id || selectEl.name}`);
+            return false;
+        }
+
+        async function loadFormData() {
+            const id = getQueryParam('id');
+            const token = localStorage.getItem('jwtToken');
+            if (!id) return; // nada a carregar
+            try {
+                const res = await fetch(`https://localhost:7134/api/form/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Não foi possível carregar o formulário');
+                const data = await res.json();
+                // Preenche campos pelo nome; ignora valores nulos para não apagar campos já preenchidos
+                Object.keys(data).forEach(key => {
+                    const el = document.querySelector(`[name="${key}"]`);
+                    if (!el) return;
+                    if (el.type === 'file') return; // não preencher arquivo
+                    const val = data[key];
+                    if (val === null || val === undefined || val === '') return; // pula nulos
+                    if (el.tagName === 'SELECT') {
+                        setSelectValue(el, val);
+                    } else {
+                        el.value = val;
+                    }
+                });
+                carregarQuatroImagens();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function populateImagePreviews(data) {
+            const map = {
+                Fotografia1: 'previewFotografia1',
+                Fotografia2: 'previewFotografia2',
+                Fotografia3: 'previewFotografia3',
+                Fotografia4: 'previewFotografia4'
+            };
+            Object.keys(map).forEach(key => {
+                const preview = document.getElementById(map[key]);
+                if (!preview) return;
+                preview.innerHTML = '';
+                const value = data[key] || data[key + 'Url'] || data[key + 'Base64'];
+                if (!value) return;
+                const img = document.createElement('img');
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '180px';
+                img.alt = key;
+                // detect base64 data or plain URL
+                if (typeof value === 'string' && value.startsWith('data:')) {
+                    img.src = value;
+                } else if (typeof value === 'string' && value.startsWith('/')) {
+                    img.src = window.location.origin + value;
+                } else {
+                    img.src = value; // assume absolute URL or data URL
+                }
+                preview.appendChild(img);
+            });
+        }
+
+
+        // converte base64 (sem data:prefix) em Blob
+        function base64ToBlob(base64, mime = 'image/jpeg') {
+            const binary = atob(base64);
+            const len = binary.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+            return new Blob([bytes.buffer], { type: mime });
+        }
+
+        // detecta mime a partir do começo da string base64 (decodifica poucos bytes)
+        function detectMimeFromBase64(base64) {
+            // decodifica os primeiros bytes
+            const binary = atob(base64.slice(0, 100)); // só precisa dos primeiros bytes
+            const b0 = binary.charCodeAt(0);
+            const b1 = binary.charCodeAt(1);
+            const b2 = binary.charCodeAt(2);
+            const b3 = binary.charCodeAt(3);
+            if (b0 === 0xFF && b1 === 0xD8) return 'image/jpeg';
+            if (b0 === 0x89 && b1 === 0x50 && b2 === 0x4E && b3 === 0x47) return 'image/png';
+            if (b0 === 0x47 && b1 === 0x49 && b2 === 0x46) return 'image/gif';
+            // webp check: "RIFF....WEBP"
+            if (binary.length >= 12 && binary.charCodeAt(0) === 0x52 && binary.charCodeAt(1) === 0x49 &&
+                binary.charCodeAt(2) === 0x46 && binary.charCodeAt(3) === 0x46 &&
+                binary.charCodeAt(8) === 0x57 && binary.charCodeAt(9) === 0x45) return 'image/webp';
+            if (b0 === 0x42 && b1 === 0x4D) return 'image/bmp';
+            return 'image/jpeg';
+        }
+
+        async function carregarQuatroImagens() {
+            const API_BASE = 'https://localhost:7134';
+            const formId = getQueryParam('id');
+            const token = localStorage.getItem('jwtToken');
+            const indices = [1, 2, 3, 4];
+
+            await Promise.all(indices.map(async (i) => {
+                const preview = document.getElementById(`previewFotografia${i}`);
+                if (!preview) return;
+                try {
+                    const res = await fetch(`${API_BASE}/api/form/${formId}/foto?index=${i}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (!res.ok) { preview.innerHTML = ''; return; }
+
+                    const contentType = res.headers.get('content-type') || '';
+                    if (contentType.startsWith('image/')) {
+                        const blob = await res.blob();
+                        const url = URL.createObjectURL(blob);
+                        preview.innerHTML = `<img src="${url}" style="max-width:100%;max-height:500px">`;
+                    } else {
+                        // response é JSON/string base64
+                        const text = await res.text();
+                        const base64 = text.replace(/^"|"$/g, ''); // remove aspas caso venha JSON string
+                        const mime = detectMimeFromBase64(base64);
+                        if (!base64) { preview.innerHTML = ''; return; }
+                        // ajuste mime se souber (pode detectar por magic bytes no backend)
+                        const blob = base64ToBlob(base64, mime);
+                        const url = URL.createObjectURL(blob);
+                        preview.innerHTML = '';
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.alt = `Fotografia ${i}`;
+                        //img.style.maxWidth = '100%';                        
+                        //img.style.maxHeight = '350px';
+                        preview.appendChild(img);
+                    }
+                } catch (err) {
+                    console.error('Erro ao carregar foto', i, err);
+                    preview.innerHTML = '';
+                }
+            }));
+        }
+
+
+        async function carregarFotoComoBlob(apiUrl, token, imgElement) {
+            const res = await fetch(apiUrl, { headers: { Authorization: `Bearer ${token}` } });
+            if (!res.ok) {
+                console.error('Erro ao carregar foto', res.status, await res.text());
+                return;
+            }
+            const base64 = await res.json(); // string base64
+            // decode base64 -> bytes
+            const binary = atob(base64);
+            const len = binary.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+            // criar blob (ajuste mime se souber)
+            const blob = new Blob([bytes.buffer], { type: 'image/png' });
+            const url = URL.createObjectURL(blob);
+            imgElement.src = url;
+            // opcional: URL.revokeObjectURL(url) quando não precisar mais
+        }
+
+
+
+        async function atualizarFormulario(event) {
+            event.preventDefault();
+            const API_BASE = 'https://localhost:7134';
+            const token = localStorage.getItem('jwtToken');
+            ValidarAutenticacao(token);
+
+            const form = document.querySelector('#form');
+
+            // Campos disabled são ignorados pelo FormData — habilitar temporariamente
+            const disabledEls = Array.from(form.querySelectorAll('[disabled]'));
+            disabledEls.forEach(el => el.removeAttribute('disabled'));
+            const formData = new FormData(form);
+            disabledEls.forEach(el => el.setAttribute('disabled', ''));
+
+            // Remove fotos não selecionadas para não zerar imagens já salvas no servidor
+            ['Fotografia1', 'Fotografia2', 'Fotografia3', 'Fotografia4'].forEach(name => {
+                const input = form.querySelector(`[name="${name}"]`);
+                if (!input || !input.files || input.files.length === 0) {
+                    formData.delete(name);
+                }
+            });
+
+            // Remove todos os campos de texto/select/etc. que estejam vazios
+            // para que o backend não sobrescreva dados existentes com string vazia
+            const keysToDelete = [];
+            formData.forEach((value, key) => {
+                // Ignora usuario_id (ainda não foi adicionado, mas por segurança)
+                if (key === 'usuario_id') return;
+                // File entries vazias já foram tratadas acima; ignora File objects com conteúdo
+                if (value instanceof File) return;
+                if (value === null || value === undefined || String(value).trim() === '') {
+                    keysToDelete.push(key);
+                }
+            });
+            keysToDelete.forEach(key => formData.delete(key));
+
+            const userId = getUserIdFromToken(token);
+            if (userId) formData.append('usuario_id', String(userId));
+
+            const id = getQueryParam('id');
+            if (!id) { alert('ID do formulário não encontrado na URL'); return; }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/updateform/${encodeURIComponent(id)}`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`${res.status} - ${text}`);
+                }
+                const data = await res.json();
+                alert(data.mensagem || 'Atualizado com sucesso');
+            } catch (e) {
+                console.error('Erro ao atualizar:', e);
+                alert('Erro ao atualizar: ' + e.message);
+            }
+        }
+
+        async function excluirFormulario() {
+            if (!confirm('Confirma exclusão deste formulário?')) return;
+            const token = localStorage.getItem('jwtToken');
+            ValidarAutenticacao(token);
+            const id = getQueryParam('id');
+            if (!id) { alert('ID do formulário não informado.'); return; }
+            try {
+                const res = await fetch(`https://localhost:7134/api/deletarForm/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error(`Erro: ${res.status}`);
+                const data = await res.json();
+                alert(data.mensagem || 'Excluído com sucesso');
+                window.location.href = 'menu_cards copy.html';
+            } catch (e) {
+                console.error('Erro ao excluir:', e);
+                alert('Erro ao excluir o formulário');
+            }
+        }
+
+        // Inicialização
+        inserirBotoesEditar();
+        loadFormData();
+
+        // Decodifica o payload de um JWT (retorna objeto ou null)
+        function parseJwt(token) {
+            try {
+                const parts = token.split('.');
+                if (parts.length < 2) return null;
+                const payload = parts[1];
+                const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+                // Decode percent-encoding for multi-byte characters
+                const decoded = decodeURIComponent(json.split('').map(function (c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(decoded);
+            } catch (e) {
+                console.warn('parseJwt failed', e);
+                return null;
+            }
+        }
+        // Expor como global para handlers inline
+        window.parseJwt = parseJwt;
+
+        function Voltar() {
+            const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'index copy.html';
+                return;
+            }
+            // Decodifica payload do JWT localmente sem depender de parseJwt global
+            let payload = null;
+            try {
+                const t = token.replace(/^Bearer\s+/i, '');
+                const parts = t.split('.');
+                if (parts.length >= 2) {
+                    const b = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    const pad = b.length % 4;
+                    const padded = b + (pad ? '='.repeat(4 - pad) : '');
+                    const json = decodeURIComponent(atob(padded).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                    payload = JSON.parse(json);
+                }
+            } catch (e) { console.warn('Voltar: failed to decode token payload', e); }
+
+            const role = payload?.role || payload?.roles || payload?.roleName || null;
+            if (role === 'admin') {
+                window.location.href = 'listaFormsAdm.html';
+            } else {
+                window.location.href = 'listaFormsUser copy.html';
+            }
+        }
+
+
+
+        // Map functions (minimal stub to keep parity with original file)
+        let mapaLocalizacao = null;
+        let marcadorLocalizacao = null;
+
+        function inicializarMapaLocalizacao() {
+            const container = document.getElementById("mapaLocalizacao");
+            if (!container || mapaLocalizacao) return;
+
+            const latInicial = -23.55052;
+            const lngInicial = -46.63331;
+
+            mapaLocalizacao = L.map("mapaLocalizacao").setView([latInicial, lngInicial], 12);
+
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+                attribution: "&copy; OpenStreetMap contributors"
+            }).addTo(mapaLocalizacao);
+
+            marcadorLocalizacao = L.marker([latInicial, lngInicial]).addTo(mapaLocalizacao);
+            marcadorLocalizacao.bindPopup("Posição inicial").openPopup();
+        }
+
+        function atualizarMapa(lat, lng, mensagem) {
+            if (!mapaLocalizacao) {
+                inicializarMapaLocalizacao();
+            }
+
+            mapaLocalizacao.setView([lat, lng], 16);
+
+            if (marcadorLocalizacao) {
+                marcadorLocalizacao.setLatLng([lat, lng]);
+                marcadorLocalizacao.bindPopup(mensagem).openPopup();
+            } else {
+                marcadorLocalizacao = L.marker([lat, lng]).addTo(mapaLocalizacao);
+                marcadorLocalizacao.bindPopup(mensagem).openPopup();
+            }
+        }
+
+
+        function capturarLocalizacaoAtual() {
+            if (!navigator.geolocation) {
+                alert("Geolocalização não suportada neste navegador.");
+                return;
+            }
+
+            const latitudeInput = document.getElementById('latitude');
+            const longitudeInput = document.getElementById('longitude');
+
+            if (latitudeInput.disabled || longitudeInput.disabled) {
+                alert("Campos de latitude e longitude bloqueados.");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (posicao) => {
+                    const lat = posicao.coords.latitude;
+                    const lng = posicao.coords.longitude;
+
+                    document.getElementById("latitude").value = lat.toFixed(6);
+                    document.getElementById("longitude").value = lng.toFixed(6);
+
+                    atualizarMapa(lat, lng, "Localização atual capturada");
+                    setTimeout(() => {
+                        if (mapaLocalizacao) mapaLocalizacao.invalidateSize();
+                    }, 200);
+                },
+                (erro) => {
+                    alert("Não foi possível capturar a localização: " + erro.message);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        function setupFilePreviews() {
+            ['Fotografia1', 'Fotografia2', 'Fotografia3', 'Fotografia4'].forEach(name => {
+                const input = document.getElementById(name);
+                const preview = document.getElementById('preview' + name);
+                if (!input || !preview) return;
+                input.addEventListener('change', () => {
+                    preview.innerHTML = '';
+                    const file = input.files && input.files[0];
+                    if (!file) return;
+                    const img = document.createElement('img');
+                    img.style.maxWidth = '100%';
+                    img.style.maxHeight = '300x';
+                    img.alt = file.name;
+                    preview.appendChild(img);
+                    const reader = new FileReader();
+                    reader.onload = (e) => img.src = e.target.result;
+                    reader.readAsDataURL(file);
+                });
+            });
+        }
+        // inicialize
+        setupFilePreviews();
+
+    </script>
+
+    <div id="custom-alert" class="hidden">
+        <div class="alert-content">
+            <p id="alert-message"></p>
+            <button onclick="closeAlert()">OK</button>
+        </div>
+    </div>
+
+</body>
+
+</html>

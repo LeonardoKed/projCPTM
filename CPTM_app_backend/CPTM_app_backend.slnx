@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/DbScripts/">
+    <File Path="Db.sql" />
+    <File Path="OracleDB.sql" />
+  </Folder>
+  <Project Path="CPTM_app_backend/CPTM_app_backend.csproj" />
+</Solution>

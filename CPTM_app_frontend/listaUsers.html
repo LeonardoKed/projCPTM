@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Listagem de Usuários</title>
+  <style>
+    :root {
+      --primary: #e30613;
+      --primary-dark: #b5000a;
+      --secondary: #003366;
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #d7dde5;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+      --radius: 18px;
+      --success-bg: #e8f8ee;
+      --success-text: #0f7a38;
+      --warning-bg: #fff4e5;
+      --warning-text: #b54708;
+      --error-bg: #fdecec;
+      --error-text: #b42318;
+      --info-bg: #eef4ff;
+      --info-text: #1d4ed8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(227, 6, 19, 0.08), transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, #f4f6f8 100%);
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(90deg, #e30613 60%, #003366 100%);
+      color: #fff;
+      padding: 24px 32px 18px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .header-content {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .header-title h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .header-title p {
+      margin: 0;
+      font-size: 0.95rem;
+      opacity: 0.92;
+    }
+
+    .header-action {
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .header-action:hover {
+      background: rgba(255, 255, 255, 0.22);
+      transform: translateY(-1px);
+    }
+
+    main {
+      flex: 1;
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+
+    .page-shell {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(215, 221, 229, 0.7);
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .section-header {
+      margin-bottom: 22px;
+    }
+
+    .section-header h2 {
+      margin: 0 0 8px;
+      font-size: 1.7rem;
+      color: var(--secondary);
+    }
+
+    .section-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 0.94rem;
+      font-weight: 600;
+      color: #344054;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 14px 15px;
+      font-size: 1rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: rgba(227, 6, 19, 0.7);
+      box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.12);
+    }
+
+    .search-btn {
+      width: 100%;
+      min-height: 50px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      box-shadow: 0 12px 22px rgba(227, 6, 19, 0.18);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .search-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.85;
+      transform: none;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    .search-btn.loading .spinner {
+      display: inline-block;
+    }
+
+    .message-area {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .message {
+      display: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      animation: slideFade 0.25s ease;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.loading {
+      background: var(--info-bg);
+      color: var(--info-text);
+      border: 1px solid rgba(29, 78, 216, 0.12);
+    }
+
+    .message.error {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid rgba(180, 35, 24, 0.12);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcfd 100%);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 880px;
+    }
+
+    thead {
+      background: #f8fafc;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 16px 18px;
+      border-bottom: 1px solid #edf1f5;
+      font-size: 0.96rem;
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--secondary);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    td {
+      color: var(--text);
+    }
+
+    tbody tr:hover {
+      background: rgba(0, 51, 102, 0.02);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+
+    .status-concluido {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .status-pendente {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .status-cancelado {
+      background: var(--error-bg);
+      color: var(--error-text);
+    }
+
+    .details-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      background: #eef2f6;
+      color: var(--secondary);
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .details-btn:hover {
+      background: #e3eaf2;
+      transform: translateY(-1px);
+    }
+
+    .empty-state {
+      display: none;
+      padding: 26px 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .empty-state.show {
+      display: block;
+    }
+
+    .pagination {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .pagination-info {
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .pagination-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .page-btn {
+      min-width: 42px;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--secondary);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0 14px;
+    }
+
+    .page-btn:hover {
+      border-color: rgba(227, 6, 19, 0.4);
+      color: var(--primary);
+    }
+
+    .page-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 12px 22px rgba(227, 6, 19, 0.18);
+    }
+
+    .page-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    footer {
+      padding: 16px 20px 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes slideFade {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 960px) {
+      .filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 20px 18px 16px;
+      }
+
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header-title h1 {
+        font-size: 1.6rem;
+      }
+
+      .page-shell {
+        padding: 22px 18px;
+      }
+
+      .filters {
+        grid-template-columns: 1fr;
+      }
+
+      .pagination {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .pagination-controls {
+        justify-content: center;
+      }
+
+      .page-btn {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="header-content">
+      <div class="header-title">
+        <h1>Listagem de Usuários</h1>
+        <p>Consulta de usuários cadastrados, com filtros e ações.</p>
+      </div>
+      <button class="header-action" type="button" onclick="window.location.href='menu_cards copy.html'">Voltar</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-shell">
+      <div class="section-header">
+        <h2>Usuários cadastrados</h2>
+        <p>Busque registros por nome, e-mail, ativo e perfil.</p>
+      </div>
+
+      <div class="filters">
+        <div class="field">
+          <label for="filterName">Nome</label>
+          <input type="text" id="filterName" placeholder="Digite o nome do usuário" />
+        </div>
+        <div class="field">
+          <label for="filterEmail">E-mail</label>
+          <input type="email" id="filterEmail" placeholder="usuario@email.com" />
+        </div>
+        <div class="field">
+          <label for="filterAtivo">Ativo</label>
+          <select id="filterAtivo">
+            <option value="">Todos</option>
+            <option value="sim">Sim</option>
+            <option value="nao">Não</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="filterPerfil">Perfil</label>
+          <select id="filterPerfil">
+            <option value="">Todos</option>
+            <option value="admin">Administrador</option>
+            <option value="user">Usuário</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="search-btn" id="searchBtn" type="button">
+            <span class="spinner" aria-hidden="true"></span>
+            <span id="searchBtnText">Buscar</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="message-area">
+        <div class="message loading" id="loadingMessage">Carregando registros...</div>
+        <div class="message error" id="errorMessage"></div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Ativo</th>
+              <th>Perfil</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState">
+          Nenhum usuário encontrado com os filtros informados.
+        </div>
+      </div>
+
+      <div class="pagination">
+        <div class="pagination-info" id="paginationInfo">Mostrando 0 registros</div>
+        <div class="pagination-controls" id="paginationControls"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    2026. Todos os direitos reservados.
+  </footer>
+
+  <script>
+
+    const API_URL = 'https://localhost:7134/api/adm/getallusuarios';
+    const token = localStorage.getItem('token'); // Se precisar de autenticação
+
+    let resultadoAtual = null; // Guarda o resultado da API
+    let filtrosAtuais = {};
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    const tableBody = document.getElementById("tableBody");
+    const paginationControls = document.getElementById("paginationControls");
+    const paginationInfo = document.getElementById("paginationInfo");
+    const emptyState = document.getElementById("emptyState");
+    const loadingMessage = document.getElementById("loadingMessage");
+    const errorMessage = document.getElementById("errorMessage");
+    const searchBtn = document.getElementById("searchBtn");
+    const searchBtnText = document.getElementById("searchBtnText");
+
+    const filterName = document.getElementById("filterName");
+    const filterEmail = document.getElementById("filterEmail");
+    const filterAtivo = document.getElementById("filterAtivo");
+    const filterPerfil = document.getElementById("filterPerfil");
+
+    function getAtivoLabel(ativo) {
+      return ativo ? "Sim" : "Não";
+    }
+
+    function getPerfilLabel(perfil) {
+      if (perfil === "admin") return "Administrador";
+      if (perfil === "normal") return "Usuário";
+      return perfil;
+    }
+
+    function setLoading(isLoading) {
+      loadingMessage.classList.toggle("show", isLoading);
+      searchBtn.disabled = isLoading;
+      searchBtn.classList.toggle("loading", isLoading);
+      searchBtnText.textContent = isLoading ? "Buscando..." : "Buscar";
+    }
+
+    function setError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.toggle("show", Boolean(message));
+    }
+
+    function capturarFiltros() {
+      const filtros = {};
+      const nome = filterName.value.trim();
+      if (nome) filtros.nome = nome;
+      const email = filterEmail.value.trim();
+      if (email) filtros.email = email;
+      const ativo = filterAtivo.value;
+      if (ativo) filtros.ativo = ativo === "sim";
+      const perfil = filterPerfil.value;
+      if (perfil) {
+        filtros.perfil = perfil === "user" ? "normal" : perfil;
+      };
+      return filtros;
+    }
+
+    async function buscarUsuarios(pagina = 1) {
+      setError("");
+      setLoading(true);
+
+      try {
+        if (pagina === 1) {
+          filtrosAtuais = capturarFiltros();
+        }
+
+        const params = new URLSearchParams({
+          pagina: pagina,
+          itensPorPagina: itemsPerPage
+        });
+
+        Object.keys(filtrosAtuais).forEach(key => {
+          params.append(key, filtrosAtuais[key]);
+        });
+
+        const url = `${API_URL}?${params}`;
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : undefined,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error('Token expirado. Faça login novamente.');
+          }
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        resultadoAtual = await response.json();
+        renderTable();
+        renderPagination();
+
+      } catch (error) {
+        setError(`Erro ao buscar usuários: ${error.message}`);
+        resultadoAtual = null;
+        renderTable();
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function renderTable() {
+      tableBody.innerHTML = "";
+
+      if (!resultadoAtual || !resultadoAtual.itens || resultadoAtual.itens.length === 0) {
+        emptyState.classList.add("show");
+        paginationInfo.textContent = "Nenhum registro encontrado";
+        return;
+      }
+
+      emptyState.classList.remove("show");
+
+      resultadoAtual.itens.forEach((user) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td>${user.id}</td>
+        <td>${user.nome}</td>
+        <td>${user.email}</td>
+        <td>
+            <span class="status-badge status-${user.ativo ? "concluido" : "cancelado"}">
+            ${getAtivoLabel(user.ativo)}
+            </span>
+        </td>
+        <td>${getPerfilLabel(user.perfil)}</td>
+        <td>
+            <button class="details-btn" type="button" onclick="editarUsuario(${user.id})">Editar</button>
+            <button class="details-btn" style="background:#fdecec;color:#b42318;" type="button" onclick="excluirUsuario(${user.id})">Excluir</button>
+        </td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      const { paginaAtual, totalRegistros, itensPorPagina } = resultadoAtual;
+      const inicio = (paginaAtual - 1) * itensPorPagina + 1;
+      const fim = Math.min(paginaAtual * itensPorPagina, totalRegistros);
+
+      paginationInfo.textContent = `Mostrando ${inicio} a ${fim} de ${totalRegistros} registros`;
+    }
+
+    function renderPagination() {
+      paginationControls.innerHTML = "";
+
+      if (!resultadoAtual || resultadoAtual.totalPaginas === 0) {
+        return;
+      }
+
+      const { paginaAtual, totalPaginas, temPaginaAnterior, temProximaPagina } = resultadoAtual;
+
+      const prevBtn = document.createElement("button");
+      prevBtn.className = "page-btn";
+      prevBtn.textContent = "Anterior";
+      prevBtn.disabled = !temPaginaAnterior;
+      prevBtn.onclick = () => buscarUsuarios(paginaAtual - 1);
+      paginationControls.appendChild(prevBtn);
+
+      const maxBotoes = 5;
+      let inicio = Math.max(1, paginaAtual - Math.floor(maxBotoes / 2));
+      let fim = Math.min(totalPaginas, inicio + maxBotoes - 1);
+      if (fim === totalPaginas) {
+        inicio = Math.max(1, fim - maxBotoes + 1);
+      }
+      if (inicio > 1) {
+        const firstBtn = document.createElement("button");
+        firstBtn.className = "page-btn";
+        firstBtn.textContent = "1";
+        firstBtn.onclick = () => buscarUsuarios(1);
+        paginationControls.appendChild(firstBtn);
+        if (inicio > 2) {
+          const dots = document.createElement("span");
+          dots.textContent = "...";
+          dots.style.padding = "8px";
+          paginationControls.appendChild(dots);
+        }
+      }
+      for (let i = inicio; i <= fim; i++) {
+        const pageBtn = document.createElement("button");
+        pageBtn.className = "page-btn" + (i === paginaAtual ? " active" : "");
+        pageBtn.textContent = i;
+        pageBtn.onclick = () => buscarUsuarios(i);
+        paginationControls.appendChild(pageBtn);
+      }
+      if (fim < totalPaginas) {
+        if (fim < totalPaginas - 1) {
+          const dots = document.createElement("span");
+          dots.textContent = "...";
+          dots.style.padding = "8px";
+          paginationControls.appendChild(dots);
+        }
+        const lastBtn = document.createElement("button");
+        lastBtn.className = "page-btn";
+        lastBtn.textContent = totalPaginas;
+        lastBtn.onclick = () => buscarUsuarios(totalPaginas);
+        paginationControls.appendChild(lastBtn);
+      }
+      const nextBtn = document.createElement("button");
+      nextBtn.className = "page-btn";
+      nextBtn.textContent = "Próxima";
+      nextBtn.disabled = !temProximaPagina;
+      nextBtn.onclick = () => buscarUsuarios(paginaAtual + 1);
+      paginationControls.appendChild(nextBtn);
+    }
+
+    function editarUsuario(id) {
+      // Redireciona para a página de edição passando o ID na query string
+      window.location.href = `editarUsuario.html?id=${id}`;
+    }
+
+    function excluirUsuario(id) {
+      if (confirm("Tem certeza que deseja excluir o usuário ID " + id + "?")) {
+        alert("Usuário excluído (simulação).");
+        // Implemente a exclusão real se necessário
+      }
+    }
+
+    searchBtn.addEventListener("click", () => buscarUsuarios(1));
+
+    // Buscar ao pressionar Enter nos campos
+    [filterName, filterEmail].forEach(input => {
+      input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") buscarUsuarios(1);
+      });
+    });
+
+    // Inicialização
+    window.onload = () => {
+      if (!token) {
+        setError("Você precisa fazer login primeiro!");
+        searchBtn.disabled = true;
+        return;
+      }
+      buscarUsuarios(1);
+    };
+
+
+  </script>
+</body>
+
+</html>

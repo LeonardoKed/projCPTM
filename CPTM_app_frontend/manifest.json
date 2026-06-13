@@ -1,0 +1,21 @@
+{
+    "name": "App_CPTM",
+    "short_name": "AppCPTM",
+    "start_url": "/index copy.html",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#0078d4",
+    "icons": [
+        {
+            "src": "assets/br.gov.sp.cptm.mobile-logo.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/br.gov.sp.cptm.mobile-logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

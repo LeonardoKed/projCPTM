@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar Usuário</title>
+    <style>
+        /* Copiado do listaUsers.html para manter estilo */
+        :root {
+            --primary: #e30613;
+            --primary-dark: #b5000a;
+            --secondary: #003366;
+            --bg: #f4f6f8;
+            --surface: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #d7dde5;
+            --shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+            --radius: 18px;
+            --success-bg: #e8f8ee;
+            --success-text: #0f7a38;
+            --warning-bg: #fff4e5;
+            --warning-text: #b54708;
+            --error-bg: #fdecec;
+            --error-text: #b42318;
+            --info-bg: #eef4ff;
+            --info-text: #1d4ed8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: var(--text);
+            background: radial-gradient(circle at top right, rgba(227, 6, 19, 0.08), transparent 24%), linear-gradient(180deg, #ffffff 0%, #f4f6f8 100%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(90deg, #e30613 60%, #003366 100%);
+            color: #fff;
+            padding: 24px 32px 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .header-content {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700
+        }
+
+        .header-action {
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, .14);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, .35);
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: .95rem;
+            transition: background .2s ease, transform .2s ease;
+        }
+
+        .header-action:hover {
+            background: rgba(255, 255, 255, .22);
+            transform: translateY(-1px);
+        }
+
+        main {
+            flex: 1;
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            padding: 40px 20px 56px;
+        }
+
+        .page-shell {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(215, 221, 229, 0.7);
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        /* form layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 140px 1fr 110px;
+            gap: 12px 18px;
+            align-items: center
+        }
+
+        label {
+            color: #344054;
+            font-weight: 700
+        }
+
+        input[readonly],
+        select[disabled] {
+            background: #f3f4f6;
+            border: 1px solid #e6e9ee;
+            padding: 12px;
+            border-radius: 10px
+        }
+
+        input,
+        select {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            width: 100%
+        }
+
+        .edit-btn {
+            background: #eef2f6;
+            border: none;
+            color: var(--secondary);
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 18px
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        .btn-danger {
+            background: #fdecec;
+            color: var(--error-text);
+            border: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        .btn-ghost {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        .messages {
+            min-height: 22px;
+            margin-bottom: 12px
+        }
+
+        .messages.error {
+            color: var(--error-text)
+        }
+
+        .messages.success {
+            color: var(--success-text)
+        }
+
+        /* modal central */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.45)
+        }
+
+        .modal {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            min-width: 320px;
+            box-shadow: 0 12px 30px rgba(2, 6, 23, 0.15);
+            text-align: center
+        }
+
+        .modal .btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 14px
+        }
+
+        @media (max-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 10px 0;
+            }
+
+            label {
+                width: auto;
+            }
+
+            .form-grid button.edit-btn {
+                justify-self: end;
+            }
+
+            .actions {
+                flex-direction: column-reverse;
+                gap: 10px;
+            }
+
+            .actions>div {
+                width: 100%;
+                display: flex;
+                justify-content: space-between
+            }
+
+            .btn-primary,
+            .btn-danger,
+            .btn-ghost {
+                width: 48%;
+            }
+
+            header {
+                padding: 18px;
+            }
+
+            main {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>Editar Usuário</h1>
+                <p style="margin:0; opacity:0.9; font-size:0.95rem">Atualize os dados do usuário ou exclua o registro.
+                </p>
+            </div>
+            <button class="header-action" type="button"
+                onclick="window.location.href='listaUsers.html'">Voltar</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-shell">
+            <div class="messages" id="messages"></div>
+
+            <form id="editForm" onsubmit="event.preventDefault(); salvarAtualizacoes()">
+                <div class="form-grid">
+                    <label>ID</label>
+                    <input id="id" readonly />
+                    <div></div>
+
+                    <label>Nome</label>
+                    <input id="nome" readonly />
+                    <button type="button" class="edit-btn" onclick="habilitarCampo('nome')">Editar</button>
+
+                    <label>E-mail</label>
+                    <input id="email" readonly />
+                    <button type="button" class="edit-btn" onclick="habilitarCampo('email')">Editar</button>
+
+                    <label>Senha</label>
+                    <input id="senha" type="password" readonly />
+                    <button type="button" class="edit-btn" onclick="habilitarCampo('senha')">Editar</button>
+
+                    <label>Ativo</label>
+                    <select id="ativo" disabled>
+                        <option value="true">Sim</option>
+                        <option value="false">Não</option>
+                    </select>
+                    <button type="button" class="edit-btn" onclick="habilitarCampo('ativo')">Editar</button>
+
+                    <label>Perfil</label>
+                    <select id="perfil" disabled>
+                        <option value="admin">Administrador</option>
+                        <option value="normal">Usuário</option>
+                    </select>
+                    <button type="button" class="edit-btn" onclick="habilitarCampo('perfil')">Editar</button>
+                </div>
+
+                <div class="actions">
+                    <div>
+                        <button type="button" class="btn-ghost" onclick="voltar()">Voltar</button>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <button type="button" class="btn-danger" onclick="abrirModalExcluir()">Excluir</button>
+                        <button type="submit" class="btn-primary">Atualizar</button>
+                    </div>
+                </div>
+            </form>
+
+        </section>
+    </main>
+
+    <footer style="padding:16px 20px 24px; text-align:center; color:var(--muted)">2026. Todos os direitos reservados.
+    </footer>
+
+    <!-- Modal personalizada -->
+    <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <h3 id="modalTitle">Confirmar exclusão</h3>
+            <p id="modalMessage">Deseja realmente excluir este usuário?</p>
+            <div class="btns">
+                <button class="btn-ghost" type="button" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-danger" id="modalConfirmBtn" type="button">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://localhost:7134/api/adm'; // ajuste se necessário
+        const token = localStorage.getItem('token');
+
+        function qs(id) { return document.getElementById(id) }
+
+        function showMessage(text, type = 'error') {
+            const m = qs('messages'); m.textContent = text; m.className = 'messages ' + (type === 'success' ? 'success' : 'error'); setTimeout(() => { m.textContent = ''; m.className = 'messages' }, 4000)
+        }
+
+        function habilitarCampo(campo) { const el = qs(campo); if (!el) return; if (el.tagName === 'SELECT') el.disabled = false; else el.readOnly = false; el.focus() }
+
+        function voltar() { window.location.href = 'listaUsers.html' }
+
+        async function carregarUsuario(id) {
+            try {
+                const url = `${API_BASE.replace(/\/$/, '')}/${encodeURIComponent(id)}`; // ajusta base e adiciona segmento
+                const res = await fetch(url, {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!res.ok) throw new Error('Erro ao carregar usuário: ' + res.status);
+
+                const data = await res.json();
+
+                // seletores: use getElementById ou adapte ao seu helper qs()
+                const elId = document.getElementById('id');
+                const elNome = document.getElementById('nome');
+                const elEmail = document.getElementById('email');
+                const elAtivo = document.getElementById('ativo'); // se for checkbox
+                const elPerfil = document.getElementById('perfil');
+
+                if (elId) elId.value = data.id ?? '';
+                if (elNome) elNome.value = data.nome ?? '';
+                if (elEmail) elEmail.value = data.email ?? '';
+                if (elAtivo) {
+                    // se elemento for checkbox
+                    if (elAtivo.type === 'checkbox') elAtivo.checked = !!data.ativo;
+                    else elAtivo.value = data.ativo ? 'true' : 'false';
+                }
+                if (elPerfil) elPerfil.value = data.perfil ?? '';
+            } catch (err) {
+                showMessage(err.message);
+            }
+        }
+
+        function abrirModalExcluir() { qs('modalBackdrop').style.display = 'flex'; qs('modalBackdrop').setAttribute('aria-hidden', 'false'); qs('modalConfirmBtn').onclick = confirmarExclusao }
+
+        function fecharModal() {
+            qs('modalBackdrop').style.display = 'none'; qs('modalBackdrop').setAttribute('aria-hidden', 'true'); qs('modalConfirmBtn').onclick = null
+
+        }
+
+        async function confirmarExclusao() {
+            const id = qs('id').value; try { const res = await fetch(`${API_BASE}/deleteuser/${id}`, { method: 'DELETE', headers: { 'Authorization': token ? `Bearer ${token}` : undefined } }); if (!res.ok) { const text = await res.text(); throw new Error('Erro ao excluir: ' + res.status + ' ' + text) } fecharModal(); showMessage('Usuário excluído com sucesso.', 'success'); setTimeout(() => window.location.href = 'listaUsers.html', 900); } catch (err) { fecharModal(); showMessage(err.message) }
+        }
+
+        async function salvarAtualizacoes() {
+
+            const id = qs('id').value;
+            if (!id) { showMessage('ID do usuário ausente.', 'error'); return; }
+
+            const delta = {};
+            const nomeEl = qs('nome'), emailEl = qs('email'), ativoEl = qs('ativo'), perfilEl = qs('perfil'), senhaEl = qs('senha');
+
+            if (nomeEl && !nomeEl.readOnly && nomeEl.value.trim()) delta.nome = nomeEl.value.trim();
+            if (emailEl && !emailEl.readOnly && emailEl.value.trim()) delta.email = emailEl.value.trim();
+            if (ativoEl && !ativoEl.disabled) delta.ativo = ativoEl.type === 'checkbox' ? ativoEl.checked : (ativoEl.value === 'true');
+            if (perfilEl && !perfilEl.disabled && perfilEl.value) delta.perfil = perfilEl.value;
+            if (senhaEl && !senhaEl.readOnly) {
+                const s = senhaEl.value.trim();
+                if (s) delta.senha = s; // só envia se não for vazio
+            }
+
+            if (Object.keys(delta).length === 0) { showMessage('Nenhuma alteração para salvar.', 'error'); return; }
+
+            try {
+                const url = `${API_BASE.replace(/\/$/, '')}/edituser/${encodeURIComponent(id)}`;
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                const res = await fetch(url, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(delta)
+                });
+
+                if (res.status === 204 || res.ok) {
+                    showMessage('Atualizado com sucesso.', 'success');
+
+                    showFeedback('Usuário atualizado com sucesso.', voltarListaUsers);
+
+                    ['nome', 'email', 'senha', 'ativo', 'perfil'].forEach(f => {
+                        const el = qs(f); if (!el) return;
+                        if (el.tagName === 'SELECT') el.disabled = true; else el.readOnly = true;
+                    });
+                    return;
+                }
+
+                if (res.status === 401) { localStorage.removeItem('token'); showMessage('Sessão expirada.', 'error'); return; }
+
+                const txt = await res.text().catch(() => res.statusText);
+                throw new Error(`Erro ao atualizar: ${res.status} ${txt}`);
+            } catch (err) {
+                showMessage(err.message || 'Erro desconhecido', 'error');
+            }
+        }
+
+
+
+        (function init() { const params = new URLSearchParams(location.search); const id = params.get('id'); if (!id) { showMessage('ID do usuário não fornecido'); return } carregarUsuario(id) })();
+
+        function showFeedback(text, onOk) {
+            const backdrop = qs('feedbackBackdrop');
+            const txt = qs('feedbackText');
+            const ok = qs('feedbackOk');
+            if (!backdrop || !txt || !ok) return;
+            txt.textContent = text;
+            backdrop.style.display = 'flex';
+            backdrop.setAttribute('aria-hidden', 'false');
+            ok.focus();
+
+            const cleanup = () => {
+                backdrop.style.display = 'none';
+                backdrop.setAttribute('aria-hidden', 'true');
+                ok.removeEventListener('click', handler);
+                ok.removeEventListener('keydown', keyHandler);
+            };
+
+            const handler = () => {
+                cleanup();
+                if (typeof onOk === 'function') onOk();
+            };
+            const keyHandler = (e) => {
+                if (e.key === 'Enter' || e.key === ' ') handler();
+            };
+
+            ok.addEventListener('click', handler);
+            ok.addEventListener('keydown', keyHandler);
+        
+        }
+
+        function voltarListaUsers() { window.location.href = 'listaUsers.html' }
+
+
+
+
+    </script>
+
+    <div id="feedbackBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+            <h3 id="feedbackTitle">Mensagem</h3>
+            <p id="feedbackText"></p>
+            <div class="btns"> <button class="btn-primary" id="feedbackOk" type="button">OK</button> </div>
+        </div>
+    </div>
+
+
+
+</body>
+
+</html>

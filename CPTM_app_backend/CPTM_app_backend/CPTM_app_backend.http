@@ -1,0 +1,6 @@
+@CPTM_app_backend_HostAddress = http://localhost:5095
+
+GET {{CPTM_app_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="manifest" href="/manifest.json">
+    <title>Perfil do Usuário</title>
+    <style>
+        :root {
+            --primary: #e30613;
+            --primary-dark: #b5000a;
+            --secondary: #003366;
+            --bg: #f4f6f8;
+            --surface: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #d7dde5;
+            --shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+            --radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top right, rgba(227, 6, 19, 0.08), transparent 24%),
+                linear-gradient(180deg, #ffffff 0%, #f4f6f8 100%);
+            display: flex;
+            flex-direction: column;
+            /* keep normal flow so header stays on top */
+        }
+
+        header {
+            background: linear-gradient(90deg, #e30613 60%, #003366 100%);
+            color: #fff;
+            padding: 24px 32px 18px; /* alinha padding lateral ao menu_cards */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            border-radius: 0;
+            margin-bottom: 18px;
+        }
+
+        .header-content {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .header-left h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 0.4px
+        }
+
+        .welcome-text {
+            margin: 2px 0 0;
+            font-size: 0.95rem;
+            opacity: 0.95
+        }
+
+        .logout-btn {
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 0.95rem;
+            cursor: pointer
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.22);
+            transform: translateY(-1px)
+        }
+
+        .action-group {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+        .profile-card {
+            background: var(--surface);
+            width: min(1180px, 100%);
+            max-width: 920px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(215, 221, 229, 0.7);
+            padding: 28px;
+            display: grid;
+            position: relative;
+            overflow: hidden;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+            margin: 0 auto; /* center horizontally */
+        }
+
+        .profile-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .photo-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px
+        }
+
+        .avatar {
+            width: 220px;
+            height: 220px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid #e6eaf0;
+            background: #fff
+        }
+
+        .photo-actions {
+            display: flex;
+            gap: 8px
+        }
+
+        main {
+            flex: 1;
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            padding: 36px 20px 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            min-height: calc(100vh - 140px);
+        }
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px
+        }
+
+        .field-row {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        label {
+            width: 120px;
+            font-weight: 600;
+            color: var(--muted)
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #e6eaf0;
+            background: #fbfdff
+        }
+
+        input[disabled] {
+            background: #f6f7f9;
+            color: var(--muted)
+        }
+
+        .field-actions {
+            width: 140px;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end
+        }
+
+        .save-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 6px
+        }
+
+        .note {
+            font-size: 0.9rem;
+            color: var(--muted);
+            text-align: center;
+            padding: 0 8px
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            display: none;
+            /* o JS alterna para flex */
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 9999;
+        }
+
+        .modal {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            text-align: center;
+        }
+
+        @media (max-width: 1050px) {
+            .profile-card {
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+
+            .avatar {
+                width: 160px;
+                height: 160px
+            }
+        }
+
+        @media (max-width: 640px) {
+            header {
+                padding: 14px 12px
+            }
+
+            .profile-card {
+                padding: 20px
+            }
+
+            .avatar {
+                width: 120px;
+                height: 120px
+            }
+
+            /* Torna cada linha de campo vertical para evitar overflow */
+            .field-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px
+            }
+
+            .field-row label {
+                width: 100%;
+                margin-bottom: 0.25rem
+            }
+
+            .field-actions {
+                width: 100%;
+                justify-content: flex-start
+            }
+
+            .field-actions button {
+                width: 140px;
+                max-width: 100%;
+            }
+
+            /* Ajustes para header/actions em telas pequenas */
+            .action-group {
+                width: auto;
+                gap: 8px
+            }
+
+            .logout-btn {
+                padding: 8px 12px;
+                font-size: 0.92rem
+            }
+
+            .btn-ghost {
+                padding: 6px 10px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="header-left">
+                <h1>Perfil</h1>
+                <p class="welcome-text" id="welcomeUser">Seja Bem-Vindo(a), Usuário</p>
+            </div>
+
+            <div class="action-group">
+                <button class="logout-btn" onclick="window.location.href='menu_cards copy.html'">Voltar</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="profile-card">
+
+        <div class="photo-box">
+            <img id="avatarImg" class="avatar"
+                src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 24 24' fill='%23E6EAF0'><rect width='24' height='24' rx='4' fill='%23E6EAF0'/><g fill='%238A8F98'><circle cx='12' cy='8' r='3'/><path d='M4 20c0-4 4-6 8-6s8 2 8 6' /></g></svg>"
+                alt="Avatar" />
+
+            <div class="photo-actions">
+                <label class="btn-ghost" for="photoInput">Alterar foto</label>
+                <button type="button" class="btn-ghost" onclick="resetPhoto()">Remover</button>
+            </div>
+
+            <input id="photoInput" type="file" accept="image/*" style="display:none" onchange="previewPhoto(event)" />
+
+
+        </div>
+
+        <form id="profileForm" onsubmit="event.preventDefault()">
+
+            <div class="field-row">
+                <label for="nome">Nome</label>
+                <input id="nome" name="nome" type="text" value="Usuário Exemplo" disabled />
+                <div class="field-actions">
+                    <button type="button" class="btn-ghost" onclick="toggleEdit('nome', this)">Atualizar</button>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" value="usuario@exemplo.com" disabled />
+                <div class="field-actions">
+                    <button type="button" class="btn-ghost" onclick="toggleEdit('email', this)">Atualizar</button>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="field-row">
+                <label for="currentPassword">Senha atual</label>
+                <input id="currentPassword" name="currentPassword" type="password" placeholder="••••••••" disabled />
+                <div class="field-actions">
+                    <button type="button" class="btn-ghost"
+                        onclick="toggleEdit('currentPassword', this)">Atualizar</button>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label for="newPassword">Nova senha</label>
+                <input id="newPassword" name="newPassword" type="password" placeholder="••••••••" disabled />
+                <div class="field-actions">
+                    <button type="button" class="btn-ghost" onclick="toggleEdit('newPassword', this)">Atualizar</button>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label for="confirmPassword">Confirmar senha</label>
+                <input id="confirmPassword" name="confirmPassword" type="password" placeholder="••••••••" disabled />
+                <div class="field-actions">
+                    <button type="button" class="btn-ghost"
+                        onclick="toggleEdit('confirmPassword', this)">Atualizar</button>
+                </div>
+            </div>
+
+            <div class="save-row">
+                <button type="button" class="btn" onclick="saveUpdates()">Salvar Atualizações</button>
+            </div>
+
+        </form>
+
+    </section>
+
+    <script>
+
+        const API_BASE = 'https://localhost:7134/api'; // ajuste se necessário
+        // Verifica se o token JWT está presente e válida; redireciona se necessário
+        const token = localStorage.getItem('jwtToken');
+
+        if (!token) {
+            window.location.href = 'index copy.html';
+        } else {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const currentTime = Date.now() / 1000;
+
+                if (payload.exp && payload.exp < currentTime) {
+                    alert('Sua sessão expirou. Faça login novamente.');
+                    localStorage.removeItem('jwtToken');
+                    window.location.href = 'index copy.html';
+                }
+
+                const nomeUsuario = payload.nome || payload.name || payload.unique_name || payload.email || 'Usuário';
+                document.getElementById('welcomeUser').textContent = 'Seja Bem-Vindo(a), ' + nomeUsuario;
+            } catch (error) {
+                console.error('Erro ao validar o token:', error);
+                alert('Token inválido. Faça login novamente.');
+                localStorage.removeItem('jwtToken');
+                window.location.href = 'index copy.html';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('jwtToken');
+            alert('Você foi desconectado.');
+            window.location.href = 'index copy.html';
+        }
+
+        const defaultAvatar = document.getElementById('avatarImg').src;
+
+        function previewPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => { document.getElementById('avatarImg').src = e.target.result };
+            reader.readAsDataURL(file);
+        }
+
+        function resetPhoto() {
+            document.getElementById('photoInput').value = '';
+            document.getElementById('avatarImg').src = defaultAvatar;
+        }
+
+        function toggleEdit(fieldId, btn) {
+            const input = document.getElementById(fieldId);
+            const enabling = input.disabled;
+            input.disabled = !enabling;
+            if (!input.disabled) {
+                input.focus();
+                btn.textContent = 'Cancelar';
+                btn.classList.add('btn'); btn.classList.remove('btn-ghost');
+            } else {
+                btn.textContent = 'Atualizar';
+                btn.classList.remove('btn'); btn.classList.add('btn-ghost');
+            }
+        }
+
+        async function CarregarUsuario(id) {
+            try {
+                const url = `${API_BASE.replace(/\/$/, '')}/perfil`; // ajusta base e adiciona segmento
+                const res = await fetch(url, {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!res.ok) throw new Error('Erro ao carregar usuário: ' + res.status);
+
+                const data = await res.json();
+
+                // seletores: use getElementById ou adapte ao seu helper qs()                
+                const elNome = document.getElementById('nome');
+                const elEmail = document.getElementById('email');
+
+                if (elNome) elNome.value = data.nome ?? '';
+                if (elEmail) elEmail.value = data.email ?? '';
+
+            } catch (err) {
+                //showMessage(err.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            CarregarUsuario();
+            const feedbackOk = document.getElementById('feedbackOk');
+            const backdrop = document.getElementById('feedbackBackdrop');
+
+            if (feedbackOk) {
+                feedbackOk.addEventListener('click', () => {
+                    hideFeedback();
+                    VoltarTelaMenu();
+                });
+            }
+
+            if (backdrop) {
+                backdrop.addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) hideFeedback();
+                });
+            }
+        });
+
+        async function saveUpdates() {
+            // Validações básicas de senha
+            const currentPass = document.getElementById('currentPassword').value.trim();
+            const newPass = document.getElementById('newPassword').value.trim();
+            const confirmPass = document.getElementById('confirmPassword').value.trim();
+
+            const payload = {
+                nome: document.getElementById('nome').value,
+                email: document.getElementById('email').value
+            };
+
+            if ((newPass || confirmPass) && !currentPass) {
+                alert('Para alterar a senha, informe a senha atual.');
+                return;
+            }
+
+            // Se há tentativa de alterar, valida confirmação e diferença da atual
+            if (newPass || confirmPass) {
+                if (newPass !== confirmPass) {
+                    alert('A nova senha e a confirmação não coincidem.');
+                    return;
+                }
+                if (newPass === currentPass) {
+                    alert('A nova senha deve ser diferente da senha atual.');
+                    return;
+                }
+            }
+
+            // inclui senha somente se os três campos estiverem preenchidos
+            if (currentPass && newPass && confirmPass) {
+                payload.senhaantiga = currentPass;
+                payload.senha = newPass;
+            }
+
+
+            // obter id (ex.: do token ou da URL)
+            const getUserIdFromToken = () => {
+                try {
+                    const p = JSON.parse(atob(token.split('.')[1]));
+                    return p?.sub ?? p?.id ?? p?.usuario_id ?? null;
+                } catch { return null; }
+            };
+
+            const id = getUserIdFromToken();
+            if (!id) { alert('ID do usuário não encontrado'); return; }
+
+            try {
+                const res = await fetch(`${API_BASE.replace(/\/$/, '')}/edituser/${encodeURIComponent(id)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const errText = await res.text();
+                    throw new Error(`Erro ${res.status}: ${errText}`);
+                }
+
+                const result = await res.json(); // ou ignore se backend retornar vazio
+                showFeedback('Sucesso', 'Atualizações salvas com sucesso.');
+
+            } catch (e) {
+                alert('Falha ao salvar: ' + e.message);
+            }
+        }
+
+        function showFeedback(title, text) {
+            const backdrop = document.getElementById('feedbackBackdrop');
+            document.getElementById('feedbackTitle').textContent = title || 'Mensagem';
+            document.getElementById('feedbackText').textContent = text || '';
+            backdrop.style.display = 'flex';
+        }
+
+        function hideFeedback() {
+            document.getElementById('feedbackBackdrop').style.display = 'none';
+        }
+
+        document.getElementById('feedbackOk').addEventListener('click', hideFeedback);
+        // fecha clicando fora do modal
+        document.getElementById('feedbackBackdrop').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) hideFeedback();
+        });
+
+
+
+
+
+        function VoltarTelaMenu() {
+            window.location.href = 'menu_cards copy.html';
+        }
+
+        function ExibirModal() {
+
+        }
+
+
+
+    </script>
+
+    <div id="feedbackBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+            <h3 id="feedbackTitle">Mensagem</h3>
+            <p id="feedbackText"></p>
+            <div class="btns"> <button class="btn-primary" id="feedbackOk" type="button">OK</button> </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

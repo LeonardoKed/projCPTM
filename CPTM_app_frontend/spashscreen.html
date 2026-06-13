@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Splashscreen</title>
+  <style>
+    :root {
+      --primary: #e30613;
+      --secondary: #003366;
+      --bg: #f4f6f8;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(227, 6, 19, 0.08), transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, #f4f6f8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: fadeBlink 1.2s infinite;
+      z-index: 2;
+    }
+    .logo-container img {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 24px rgba(227, 6, 19, 0.12));
+    }
+    @keyframes fadeBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .train-track {
+      position: absolute;
+      bottom: 60px;
+      left: 0;
+      width: 100vw;
+      height: 60px;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .train {
+      position: absolute;
+      bottom: 70px;
+      left: -200px;
+      width: 180px;
+      height: 50px;
+      z-index: 2;
+      animation: trainMove 2.2s linear forwards;
+    }
+    @keyframes trainMove {
+      0% { left: -200px; }
+      100% { left: 100vw; }
+    }
+
+
+    .train .wheel {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: wheelSpin 0.5s linear infinite;
+    }
+    @keyframes wheelSpin {
+    100% { transform: rotate(360deg); }
+    }
+
+
+  </style>
+</head>
+<body>
+  <div class="logo-container">
+    <img src="assets/br.gov.sp.cptm.mobile-logo.png" alt="Logo CPTM">
+  </div>
+  <!-- Trilha do trem -->
+    <svg class="train-track" viewBox="0 0 1000 60" preserveAspectRatio="none">
+        <rect x="0" y="40" width="1000" height="8" fill="#888" />
+        <rect x="0" y="52" width="1000" height="4" fill="#444" />
+        <!-- Dormentes -->
+        <g>
+        <rect x="20" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="70" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="120" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="170" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="220" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="270" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="320" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="370" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="420" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="470" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="520" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="570" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="620" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="670" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="720" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="770" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="820" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="870" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="920" y="36" width="8" height="20" fill="#bca16b"/>
+        <rect x="970" y="36" width="8" height="20" fill="#bca16b"/>
+        </g>
+    </svg>
+    <!-- Trem animado (simples, pode ser substituído por SVG mais detalhado ou imagem) -->
+    <svg class="train" viewBox="0 0 180 50">
+    <!-- Corpo do trem -->
+    <rect x="10" y="20" width="160" height="22" rx="6" fill="#e30613" stroke="#003366" stroke-width="3"/>
+    <!-- Janelas -->
+    <rect x="30" y="10" width="30" height="14" rx="3" fill="#e0e7ef" stroke="#003366" stroke-width="1"/>
+    <rect x="65" y="10" width="30" height="14" rx="3" fill="#e0e7ef" stroke="#003366" stroke-width="1"/>
+    <rect x="100" y="10" width="30" height="14" rx="3" fill="#e0e7ef" stroke="#003366" stroke-width="1"/>
+    <rect x="135" y="10" width="25" height="14" rx="3" fill="#e0e7ef" stroke="#003366" stroke-width="1"/>
+    <!-- Farol -->
+    <ellipse cx="170" cy="31" rx="4" ry="4" fill="#fff700" stroke="#bca16b" stroke-width="1"/>
+    <!-- Rodas animadas -->
+    <g>
+        <circle class="wheel" cx="40" cy="45" r="7" fill="#444" stroke="#222" stroke-width="2"/>
+        <circle class="wheel" cx="140" cy="45" r="7" fill="#444" stroke="#222" stroke-width="2"/>
+    </g>
+    </svg>
+  <script>
+    setTimeout(() => {
+      window.location.href = "index copy.html";
+    }, 2200);
+  </script>
+</body>
+</html>
