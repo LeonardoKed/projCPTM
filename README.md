@@ -10,3 +10,12 @@ Interface do sistema, onde ocorre o cadastro, visualização e interação do us
 
 CPTM_app_backend  
 API responsável pelo processamento, armazenamento e validação dos dados de efluentes.
+
+
+
+Grupo 6: 
+Allan Rodrigues
+Fellipi Oliveira
+João Paulo
+Leonardo Ked
+
